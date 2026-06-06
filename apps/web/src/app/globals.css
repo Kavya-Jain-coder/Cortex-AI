@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 42 26% 96%;
+    --foreground: 0 0% 5%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
+    --primary: 0 0% 4%;
+    --primary-foreground: 43 96% 57%;
+    --secondary: 43 96% 57%;
+    --secondary-foreground: 0 0% 5%;
+    --accent: 44 94% 89%;
+    --accent-foreground: 0 0% 5%;
+    --muted: 43 22% 91%;
+    --muted-foreground: 0 0% 35%;
+
+    --destructive:      0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 42 18% 80%;
+    --input: 42 18% 80%;
+    --ring: 43 96% 57%;
+
+    --radius: 0.625rem;
+  }
+
+  .dark {
+    --background: 0 0% 3%;
+    --foreground: 45 44% 96%;
+    --card: 0 0% 7%;
+    --card-foreground: 45 44% 96%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 45 44% 96%;
+    --primary: 43 96% 57%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 42 84% 48%;
+    --secondary-foreground: 0 0% 4%;
+    --accent: 43 88% 13%;
+    --accent-foreground: 45 96% 76%;
+    --muted: 0 0% 11%;
+    --muted-foreground: 42 13% 64%;
+    --destructive: 0 72% 46%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 43 36% 18%;
+    --input: 43 28% 18%;
+    --ring: 43 96% 57%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    background:
+      radial-gradient(circle at 20% 0%, hsl(43 96% 57% / 0.12), transparent 28rem),
+      linear-gradient(180deg, hsl(0 0% 5%), hsl(0 0% 2%));
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Use the modern sans font for default semantic headings to maintain UI readability */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans), system-ui, sans-serif;
+    letter-spacing: -0.015em;
+    color: hsl(var(--foreground));
+    line-height: 1.25;
+  }
+
+  html {
+    font-family: var(--font-sans), system-ui, sans-serif;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply rounded-full bg-border; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground/40; }
+
+  /* Selection color — golden */
+  ::selection {
+    background: hsl(45 100% 55% / 0.3);
+    color: hsl(0 0% 6%);
+  }
+
+  /* Focus ring — golden */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer utilities {
+  /* Golden gradient text utility */
+  .text-golden {
+    background: linear-gradient(135deg, hsl(48 100% 78%), hsl(43 96% 57%), hsl(35 90% 46%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glow-golden {
+    box-shadow: 0 0 0 1px hsl(43 96% 57% / 0.35), 0 18px 45px hsl(43 96% 57% / 0.13);
+  }
+
+  .premium-panel {
+    background:
+      linear-gradient(180deg, hsl(0 0% 9% / 0.96), hsl(0 0% 5% / 0.98)),
+      radial-gradient(circle at top left, hsl(43 96% 57% / 0.12), transparent 18rem);
+    border-color: hsl(43 36% 18%);
+    box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.05), 0 18px 70px hsl(0 0% 0% / 0.36);
+  }
+
+  .gold-hairline {
+    border-color: hsl(43 96% 57% / 0.26);
+  }
+}

@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+.next/
+out/
+dist/
+build/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Python venv
+.venv/
+venv/
+env/
+
+# Qdrant local binary & data
+qdrant
+qdrant.tar.gz
+storage/
+snapshots/
+.qdrant-initialized
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+coverage/
+.pytest_cache/
+htmlcov/
+
+# Misc
+*.log
+.vercel
