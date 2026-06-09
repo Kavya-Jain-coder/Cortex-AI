@@ -119,14 +119,17 @@ export function QuizPlayer({ questions, onReset }: QuizPlayerProps) {
           </div>
           {percent >= 80 && (
             <>
-              {[0, 1, 2, 3, 4, 5].map((i) => (
-                <ConfettiParticle
-                  key={i}
-                  delay={i * 100}
-                  x={10 + i * 15}
-                  color={["#f59e0b", "#10b981", "#3b82f6", "#f43f5e", "#8b5cf6", "#ec4899"][i]}
-                />
-              ))}
+              {([0, 1, 2, 3, 4, 5] as const).map((i) => {
+                const colors = ["#f59e0b", "#10b981", "#3b82f6", "#f43f5e", "#8b5cf6", "#ec4899"];
+                return (
+                  <ConfettiParticle
+                    key={i}
+                    delay={i * 100}
+                    x={10 + i * 15}
+                    color={colors[i] ?? "#f59e0b"}
+                  />
+                );
+              })}
             </>
           )}
         </div>
