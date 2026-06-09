@@ -57,6 +57,7 @@ export function QuizPlayer({ questions, onReset }: QuizPlayerProps) {
 
   const question = questions[currentIndex];
   const qState = states[currentIndex];
+  if (!question || !qState) return null;
   const totalAnswered = states.filter((s) => s.revealed).length;
   const totalCorrect = states.filter((s) => s.state === "correct").length;
 
