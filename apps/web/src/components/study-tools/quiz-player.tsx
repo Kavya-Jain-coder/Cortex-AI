@@ -159,6 +159,7 @@ export function QuizPlayer({ questions, onReset }: QuizPlayerProps) {
         <div className="w-full max-w-lg space-y-2">
           {questions.map((q, i) => {
             const s = states[i];
+            if (!s) return null;
             return (
               <div
                 key={i}
