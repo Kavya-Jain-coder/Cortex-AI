@@ -8,6 +8,13 @@ from app.core.config import get_settings
 from app.db.session import Base
 import app.models.models  # noqa: F401 — register all models
 
+
+def _fix_url(url: str) -> str:
+    """Ensure the async driver is in the URL scheme."""
+    if url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    return url
+
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
@@ -18,7 +25,7 @@ target_metadata = Base.metadata
 def run_migrations_offline() -> None:
     settings = get_settings()
     context.configure(
-        url=settings.database_url,
+        url=_fix_url(settings.database_url),
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -29,7 +36,7 @@ def run_migrations_offline() -> None:
 
 async def run_migrations_online() -> None:
     settings = get_settings()
-    connectable = create_async_engine(settings.database_url)
+    connectable = create_async_engine(_fix_url(settings.database_url))
 
     async with connectable.connect() as connection:
         await connection.run_sync(
