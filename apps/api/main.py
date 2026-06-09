@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.core.config import get_settings
 from app.pipelines.rag.vector_store import ensure_collection
@@ -30,10 +31,14 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="StudyOS API",
         version="0.1.0",
-        docs_url="/docs" if not settings.is_production else None,
+        docs_url="/docs",
         redoc_url=None,
         lifespan=lifespan,
     )
+
+    @app.get("/health")
+    async def health_check():
+        return JSONResponse({"status": "ok"})
 
     app.add_middleware(
         CORSMiddleware,
