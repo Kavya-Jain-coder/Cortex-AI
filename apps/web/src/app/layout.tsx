@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, JetBrains_Mono, Manrope } from "next/font/google";
 import { QueryProvider } from "@/components/layout/query-provider";
 import { Toaster } from "@/components/ui/sonner";
-import "tldraw/tldraw.css";
 import "./globals.css";
 
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-sans", weight: ["400", "500", "600", "700", "800"] });
