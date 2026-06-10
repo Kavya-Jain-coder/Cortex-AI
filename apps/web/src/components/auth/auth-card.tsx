@@ -23,7 +23,7 @@ export function AuthCard({
         className="object-cover -z-10"
       />
       {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-black/60" />
 
       {/* Card */}
       <div className="relative z-10 w-full max-w-md rounded-xl border border-golden/20 bg-black/70 p-7 shadow-[0_24px_80px_hsl(0_0%_0%/0.5)] backdrop-blur-xl">
