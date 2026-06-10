@@ -41,6 +41,10 @@ export function CanvasNoteEditor({ value, onChange }: CanvasNoteEditorProps) {
         persistenceKey={undefined}
         onMount={(editor) => {
           editorRef.current = editor;
+          
+          // Apply theme immediately on mount
+          editor.user.updateUserPreferences({ colorScheme: isDark ? "dark" : "light" });
+
           if (value) {
             try {
               loadSnapshot(editor.store, JSON.parse(value));
