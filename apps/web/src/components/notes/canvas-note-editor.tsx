@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import { Tldraw, type Editor, getSnapshot, loadSnapshot } from "tldraw";
 
+import { useTheme } from "next-themes";
+
 interface CanvasNoteEditorProps {
   value: string | null;
   onChange: (snapshot: string) => void;
@@ -11,6 +13,9 @@ interface CanvasNoteEditorProps {
 export function CanvasNoteEditor({ value, onChange }: CanvasNoteEditorProps) {
   const editorRef = useRef<Editor | null>(null);
   const loadedValueRef = useRef<string | null>(null);
+  const { theme, systemTheme } = useTheme();
+
+  const isDark = theme === "dark" || (theme === "system" && systemTheme === "dark");
 
   useEffect(() => {
     const editor = editorRef.current;
@@ -24,8 +29,14 @@ export function CanvasNoteEditor({ value, onChange }: CanvasNoteEditorProps) {
     }
   }, [value]);
 
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.user.updateUserPreferences({ isDarkMode: isDark });
+    }
+  }, [isDark]);
+
   return (
-    <div className="relative flex-1 h-full min-h-0 overflow-hidden border-t border-border bg-background">
+    <div className="relative flex-1 h-full min-h-0 overflow-hidden border-t border-border bg-background touch-none">
       <Tldraw
         persistenceKey={undefined}
         onMount={(editor) => {
