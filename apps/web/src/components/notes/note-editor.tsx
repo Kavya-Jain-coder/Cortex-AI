@@ -253,18 +253,25 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
         {note.type === "canvas" ? (
           <CanvasNoteEditor value={canvasData} onChange={setCanvasData} />
         ) : (
-          <div className="flex-1 overflow-hidden p-0 relative" data-color-mode="dark">
+          <div className="flex-1 overflow-hidden p-0 relative flex flex-col" data-color-mode="dark">
+            <div className="bg-muted/30 px-4 py-2 flex flex-wrap items-center gap-4 text-xs text-muted-foreground border-b border-border/50">
+              <span className="flex items-center gap-1.5 text-primary"><Bot className="h-3.5 w-3.5"/> <strong>Coding Tip:</strong></span>
+              <span>Type <code className="bg-muted px-1.5 py-0.5 rounded text-foreground font-mono">```python</code> for Python blocks</span>
+              <span>Type <code className="bg-muted px-1.5 py-0.5 rounded text-foreground font-mono">```cpp</code> for C++</span>
+              <span>Type <code className="bg-muted px-1.5 py-0.5 rounded text-foreground font-mono">```java</code> for Java</span>
+              <span>Type <code className="bg-muted px-1.5 py-0.5 rounded text-foreground font-mono">$$</code> for Math</span>
+            </div>
             <MDEditor
               value={content}
               onChange={(val) => setContent(val || "")}
               height="100%"
-              className="w-full h-full border-none !bg-background"
+              className="w-full flex-1 border-none !bg-background"
               previewOptions={{
                 remarkPlugins: [remarkMath],
                 rehypePlugins: [rehypeKatex],
               }}
               textareaProps={{
-                placeholder: "Start writing with Markdown. Use $$ for math equations...",
+                placeholder: "Start writing... To write code, use triple backticks like ```python followed by your code.",
               }}
             />
           </div>
