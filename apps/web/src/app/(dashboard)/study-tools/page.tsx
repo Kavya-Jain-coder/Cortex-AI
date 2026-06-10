@@ -86,12 +86,12 @@ export default function StudyToolsPage() {
       description="Generate quizzes, weak-topic maps, and predicted exam questions from scoped RAG context."
       actions={<BrainCircuit className="h-5 w-5 text-muted-foreground" />}
     >
-      <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
-        <aside className="space-y-4 rounded-lg border border-border bg-card p-4">
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Tool</label>
+      <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
+        <aside className="space-y-6 rounded-xl bg-card/50 p-5 shadow-sm border border-border/40">
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/80">Tool</label>
             <Select value={mode} onValueChange={(value) => setMode(value as ToolMode)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="bg-background/50 border-border/50"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="quiz">Quiz generator</SelectItem>
                 <SelectItem value="weak-topics">Weak-topic detection</SelectItem>
@@ -100,30 +100,32 @@ export default function StudyToolsPage() {
             </Select>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Focus</label>
-            <Input value={query} onChange={(e) => setQuery(e.target.value)} />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Count</label>
-            <Input value={count} onChange={(e) => setCount(e.target.value)} type="number" min={1} max={20} />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Difficulty</label>
-            <Select value={difficulty} onValueChange={setDifficulty}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="easy">Easy</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="hard">Hard</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Retrieval Scope</label>
+            <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/80">Focus</label>
+            <Input className="bg-background/50 border-border/50" value={query} onChange={(e) => setQuery(e.target.value)} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/80">Count</label>
+              <Input className="bg-background/50 border-border/50" value={count} onChange={(e) => setCount(e.target.value)} type="number" min={1} max={20} />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/80">Difficulty</label>
+              <Select value={difficulty} onValueChange={setDifficulty}>
+                <SelectTrigger className="bg-background/50 border-border/50"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="easy">Easy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="hard">Hard</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-2 pt-2 border-t border-border/30">
+            <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/80">Retrieval Scope</label>
             <SourceScopePanel
               scope={scope}
               selectedSourceIds={sourceIds}
@@ -132,16 +134,16 @@ export default function StudyToolsPage() {
             />
           </div>
 
-          <Button className="w-full gap-2" onClick={generate} disabled={active.isPending}>
+          <Button className="w-full gap-2 font-bold shadow-sm" size="lg" onClick={generate} disabled={active.isPending}>
             {active.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             Generate
           </Button>
           {active.error instanceof Error && (
-            <p className="text-xs text-destructive">{active.error.message}</p>
+            <p className="text-xs text-destructive text-center">{active.error.message}</p>
           )}
         </aside>
 
-        <section className="min-h-[520px] min-w-0 overflow-hidden rounded-lg border border-border bg-card p-6 flex flex-col">
+        <section className="min-h-[600px] min-w-0 overflow-hidden rounded-xl border border-border/40 bg-card/30 p-8 flex flex-col shadow-sm">
           {!data ? (
             <div className="flex h-full flex-col justify-center py-6">
               <div className="text-center max-w-md mx-auto space-y-3">
