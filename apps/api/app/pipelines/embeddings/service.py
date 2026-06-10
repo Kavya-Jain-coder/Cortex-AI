@@ -36,9 +36,10 @@ async def embed_texts(texts: list[str]) -> list[list[float]]:
     for i in range(0, len(texts), batch_size):
         batch = texts[i : i + batch_size]
         res = await genai.embed_content_async(
-            model='models/text-embedding-004',
+            model='models/gemini-embedding-2',
             content=batch,
-            task_type='RETRIEVAL_DOCUMENT'
+            task_type='RETRIEVAL_DOCUMENT',
+            output_dimensionality=768
         )
         
         embeddings = res['embedding']
@@ -63,8 +64,9 @@ async def embed_query(query: str) -> list[float]:
     """Embed a single search query using Gemini."""
     _init_genai()
     res = await genai.embed_content_async(
-        model='models/text-embedding-004',
+        model='models/gemini-embedding-2',
         content=query,
-        task_type='RETRIEVAL_QUERY'
+        task_type='RETRIEVAL_QUERY',
+        output_dimensionality=768
     )
     return res['embedding']
