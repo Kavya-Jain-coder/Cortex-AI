@@ -273,7 +273,6 @@ function ResultCard({
     item.confidence !== undefined ? Math.round(Number(item.confidence) * 100) : null;
 
   return (
-  return (
     <article className="rounded-xl border border-border bg-background p-5 relative group shadow-sm transition-shadow hover:shadow-md">
       <div className="mb-3 flex items-start justify-between gap-4">
         <div className="flex gap-2 text-sm font-semibold leading-relaxed">
