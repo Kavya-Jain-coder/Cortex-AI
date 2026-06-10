@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ArrowLeft, Bot, FileText, Loader2, Save, Tags, X, Download } from "lucide-react";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.css";
 import { toast } from "sonner";
 import { useNote, useUpdateNote } from "@/lib/hooks/use-notes";
@@ -258,8 +260,8 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
               height="100%"
               className="w-full h-full border-none !bg-background"
               previewOptions={{
-                remarkPlugins: [require("remark-math")],
-                rehypePlugins: [require("rehype-katex")],
+                remarkPlugins: [remarkMath],
+                rehypePlugins: [rehypeKatex],
               }}
               textareaProps={{
                 placeholder: "Start writing with Markdown. Use $$ for math equations...",
