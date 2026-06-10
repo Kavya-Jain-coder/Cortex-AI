@@ -131,7 +131,11 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
 
   const handleExport = () => {
     if (!note) return;
-    const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+    
+    // Strip out the raw Canvas JSON state so the markdown file looks clean
+    const cleanContent = content.replace(/<!-- CORTEX_CANVAS: .*? -->/gs, "");
+    
+    const blob = new Blob([cleanContent], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
