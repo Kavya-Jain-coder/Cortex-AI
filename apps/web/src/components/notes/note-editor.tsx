@@ -10,6 +10,7 @@ import "katex/dist/katex.css";
 import { toast } from "sonner";
 import { useNote, useUpdateNote } from "@/lib/hooks/use-notes";
 import { useSubjects } from "@/lib/hooks/use-subjects";
+import { analyticsApi } from "@/lib/api/analytics";
 import { cn } from "@/lib/utils";
 import { parseMarkdownToBlocks, serializeBlocksToMarkdown, NotebookBlock } from "@/lib/utils/notebook-parser";
 import { NotebookEditor } from "./notebook-editor";
@@ -113,6 +114,14 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [save]);
+
+  useEffect(() => {
+    // Record 1 minute of study time every 60 seconds
+    const interval = setInterval(() => {
+      analyticsApi.recordSession(1, subjectId === NO_SUBJECT ? null : subjectId).catch(console.error);
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [subjectId]);
 
   const handleBlocksChange = (newBlocks: NotebookBlock[]) => {
     setBlocks(newBlocks);

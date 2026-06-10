@@ -6,4 +6,10 @@ export const analyticsApi = {
     const { data } = await apiClient.get("/analytics/summary");
     return data;
   },
+  recordSession: async (durationMinutes: number, subjectId?: string | null): Promise<void> => {
+    await apiClient.post("/analytics/sessions", {
+      duration_minutes: durationMinutes,
+      subject_id: subjectId,
+    });
+  },
 };

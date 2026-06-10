@@ -8,8 +8,29 @@ from app.core.auth import get_current_user_id
 from app.db.session import get_db
 from app.models.models import ChatMessage, ChatSession, Document, Note, StudySession, Subject
 
+from pydantic import BaseModel
+from typing import Optional
+
 router = APIRouter(prefix="/analytics", tags=["analytics"])
 
+class StudySessionCreate(BaseModel):
+    duration_minutes: int
+    subject_id: Optional[str] = None
+
+@router.post("/sessions")
+async def record_study_session(
+    data: StudySessionCreate,
+    db: AsyncSession = Depends(get_db),
+    user_id: str = Depends(get_current_user_id),
+):
+    session = StudySession(
+        user_id=user_id,
+        subject_id=data.subject_id,
+        duration_minutes=data.duration_minutes
+    )
+    db.add(session)
+    await db.commit()
+    return {"status": "ok"}
 
 @router.get("/summary")
 async def get_summary(

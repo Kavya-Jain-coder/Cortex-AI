@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BrainCircuit, Loader2, Sparkles, Maximize2, Gamepad2, List } from "lucide-react";
 import type { SearchScope } from "@studyos/shared/types";
 import type { QuizQuestion } from "@/lib/api/study-tools";
 import { useGenerateQuiz, usePredictions, useWeakTopics } from "@/lib/hooks/use-study-tools";
+import { analyticsApi } from "@/lib/api/analytics";
 import { useNotesUIStore } from "@/store/notes-ui.store";
 import { SourceScopePanel } from "@/components/ai/source-scope-panel";
 import { ChatMarkdown } from "@/components/ai/chat-markdown";
@@ -46,6 +47,14 @@ export default function StudyToolsPage() {
 
   const active = mode === "quiz" ? quiz : mode === "weak-topics" ? weakTopics : predictions;
   const data = active.data;
+
+  useEffect(() => {
+    // Record 1 minute of study time every 60 seconds
+    const interval = setInterval(() => {
+      analyticsApi.recordSession(1, selectedSubjectId === "NO_SUBJECT" ? null : selectedSubjectId).catch(console.error);
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [selectedSubjectId]);
 
   const generate = () => {
     const payload = {
