@@ -20,6 +20,7 @@ export function AuthCard({
         alt=""
         fill
         priority
+        quality={100}
         className="object-cover -z-10"
       />
       {/* Dark overlay for readability */}
