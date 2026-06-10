@@ -108,6 +108,40 @@ async def _run_ingestion(doc_id: str, pdf_bytes: bytes, user_id: str) -> Ingesti
             await _persist_pg_chunks(session, all_chunks, chunk_ids, doc_id, user_id, doc)
             await _update_search_vectors(session, doc_id)
 
+            # Proactive AI: Generate a Study Guide Note
+            try:
+                from app.pipelines.llm.study_guide import generate_proactive_study_guide
+                from app.models.models import Note
+                
+                # Combine all extracted text for the study guide
+                full_text = "\n".join([page_text for _, page_text in pages])
+                markdown_content = await generate_proactive_study_guide(full_text, doc.file_name)
+                
+                ai_note = Note(
+                    id=str(uuid.uuid4()),
+                    user_id=user_id,
+                    title=f"AI Study Guide: {doc.file_name}",
+                    type="typed",
+                    content=markdown_content,
+                    subject_id=doc.subject_id,
+                    tags=["ai-generated", "study-guide"]
+                )
+                session.add(ai_note)
+                await session.flush()
+                
+                # Index the AI generated note
+                await index_note(
+                    note_id=ai_note.id,
+                    user_id=user_id,
+                    content=markdown_content,
+                    title=ai_note.title,
+                    subject_id=doc.subject_id,
+                    tags=ai_note.tags,
+                    db=session,
+                )
+            except Exception as e:
+                logger.error("Failed to generate proactive study guide: %s", str(e))
+
             doc.status = "ready"
             await session.commit()
 

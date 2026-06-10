@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { ArrowLeft, Bot, FileText, Loader2, Save, Tags, X } from "lucide-react";
+import { ArrowLeft, Bot, FileText, Loader2, Save, Tags, X, Download } from "lucide-react";
+import "katex/dist/katex.css";
 import { toast } from "sonner";
 import { useNote, useUpdateNote } from "@/lib/hooks/use-notes";
 import { useSubjects } from "@/lib/hooks/use-subjects";
@@ -35,6 +36,11 @@ const CanvasNoteEditor = dynamic(
       </div>
     ),
   }
+);
+
+const MDEditor = dynamic(
+  () => import("@uiw/react-md-editor").then((mod) => mod.default),
+  { ssr: false }
 );
 
 export function NoteEditor({ noteId }: NoteEditorProps) {
@@ -101,6 +107,19 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     setTagInput("");
   };
 
+  const handleExport = () => {
+    if (!note) return;
+    const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${title.trim() || "Untitled"}.md`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -140,6 +159,17 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
             className="min-w-0 flex-1 bg-transparent text-base font-semibold outline-none"
             placeholder="Untitled note"
           />
+          {note.type === "typed" && (
+            <Button
+              type="button"
+              onClick={handleExport}
+              variant="outline"
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Export Markdown
+            </Button>
+          )}
           <Button
             type="button"
             onClick={save}
@@ -221,12 +251,21 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
         {note.type === "canvas" ? (
           <CanvasNoteEditor value={canvasData} onChange={setCanvasData} />
         ) : (
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Start writing. Save to index this note for search and tutoring."
-            className="min-h-0 flex-1 resize-none bg-background p-8 text-base leading-8 outline-none"
-          />
+          <div className="flex-1 overflow-hidden p-0 relative" data-color-mode="dark">
+            <MDEditor
+              value={content}
+              onChange={(val) => setContent(val || "")}
+              height="100%"
+              className="w-full h-full border-none !bg-background"
+              previewOptions={{
+                remarkPlugins: [require("remark-math")],
+                rehypePlugins: [require("rehype-katex")],
+              }}
+              textareaProps={{
+                placeholder: "Start writing with Markdown. Use $$ for math equations...",
+              }}
+            />
+          </div>
         )}
       </main>
 

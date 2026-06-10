@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { CheckCircle2, XCircle, Trophy, RotateCcw, ChevronRight, Sparkles } from "lucide-react";
+import { CheckCircle2, XCircle, Trophy, RotateCcw, ChevronRight, Sparkles, Download } from "lucide-react";
 import type { QuizQuestion } from "@/lib/api/study-tools";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -100,6 +100,20 @@ export function QuizPlayer({ questions, onReset }: QuizPlayerProps) {
     setShowResults(false);
   };
 
+  const handleExportAnki = () => {
+    const escapeCsv = (str: string) => `"${str.replace(/"/g, '""')}"`;
+    const csvContent = questions.map(q => `${escapeCsv(q.question)},${escapeCsv(q.answer)}`).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "flashcards.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   /* ─── Results Screen ─── */
   if (showResults) {
     const percent = Math.round((totalCorrect / questions.length) * 100);
@@ -184,6 +198,9 @@ export function QuizPlayer({ questions, onReset }: QuizPlayerProps) {
         <div className="flex gap-3">
           <Button variant="outline" onClick={restart} className="gap-2">
             <RotateCcw className="h-4 w-4" /> Retry Quiz
+          </Button>
+          <Button variant="outline" onClick={handleExportAnki} className="gap-2 border-primary/20 bg-primary/5 hover:bg-primary/10 hover:text-primary text-primary">
+            <Download className="h-4 w-4" /> Export Anki (CSV)
           </Button>
           {onReset && (
             <Button variant="outline" onClick={onReset} className="gap-2">
