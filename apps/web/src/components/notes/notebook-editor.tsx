@@ -44,20 +44,12 @@ export function NotebookEditor({ blocks, onChange }: NotebookEditorProps) {
   const addBlock = (index: number, type: "text" | "code" | "canvas" | "math") => {
     const newBlocks = [...blocks];
     
-    if (type === "math") {
-      newBlocks.splice(index + 1, 0, {
-        id: Math.random().toString(),
-        type: "text",
-        content: "$$\\n\\n$$",
-      });
-    } else {
-      newBlocks.splice(index + 1, 0, {
-        id: Math.random().toString(),
-        type: type,
-        content: type === "canvas" ? "{}" : "",
-        language: type === "code" ? "python" : undefined,
-      });
-    }
+    newBlocks.splice(index + 1, 0, {
+      id: Math.random().toString(),
+      type: type,
+      content: type === "canvas" ? "{}" : "",
+      language: type === "code" ? "python" : undefined,
+    });
     onChange(newBlocks);
   };
 
@@ -116,6 +108,11 @@ export function NotebookEditor({ blocks, onChange }: NotebookEditorProps) {
                     className="flex-1 w-full h-full relative"
                   />
                 </div>
+              ) : block.type === "math" ? (
+                <MathBlock 
+                  content={block.content} 
+                  onChange={(content) => updateBlock(block.id, { content })} 
+                />
               ) : (
                 <TextBlock 
                   content={block.content} 
@@ -196,6 +193,55 @@ function TextBlock({ content, onChange }: { content: string, onChange: (c: strin
           rehypePlugins={[rehypeKatex]}
           remarkPlugins={[remarkMath]}
           style={{ backgroundColor: 'transparent' }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function MathBlock({ content, onChange }: { content: string, onChange: (c: string) => void }) {
+  const [isEditing, setIsEditing] = useState(content === "");
+
+  if (isEditing) {
+    return (
+      <div className="rounded-md overflow-hidden border border-border bg-muted/30 pt-1">
+        <div className="flex items-center px-3 py-1.5 bg-muted/50 border-b border-border text-xs font-mono text-muted-foreground justify-between">
+          <div className="flex items-center">
+            <Sigma className="h-3.5 w-3.5 mr-2" />
+            <span>LaTeX Math</span>
+          </div>
+          <Button size="sm" variant="ghost" className="h-5 text-[10px] px-2" onClick={() => setIsEditing(false)}>Done</Button>
+        </div>
+        <CodeEditor
+          value={content}
+          language="latex"
+          onChange={(evn) => onChange(evn.target.value)}
+          padding={16}
+          minHeight={60}
+          style={{
+            fontSize: 14,
+            backgroundColor: "transparent",
+            fontFamily: "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
+          }}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      onDoubleClick={() => setIsEditing(true)}
+      className="cursor-pointer p-4 min-h-[60px] rounded-md border border-transparent transition-colors flex items-center justify-center bg-muted/5 group/math relative"
+    >
+      <div className="absolute top-2 left-2 opacity-0 group-hover/math:opacity-100 transition-opacity">
+        <span className="text-[10px] uppercase tracking-wider text-muted-foreground/50 font-mono">Double-click to edit Math</span>
+      </div>
+      <div data-color-mode="dark" className="w-full text-center overflow-x-auto overflow-y-hidden py-4">
+        <MarkdownViewer 
+          source={`$$\n${content || "\\text{Empty math block}"}\n$$`} 
+          rehypePlugins={[rehypeKatex]}
+          remarkPlugins={[remarkMath]}
+          style={{ backgroundColor: 'transparent', textAlign: 'center' }}
         />
       </div>
     </div>

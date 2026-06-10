@@ -1,4 +1,4 @@
-export type BlockType = "text" | "code" | "canvas";
+export type BlockType = "text" | "code" | "canvas" | "math";
 
 export interface NotebookBlock {
   id: string;
@@ -45,9 +45,32 @@ export function parseMarkdownToBlocks(markdown: string): NotebookBlock[] {
       continue;
     }
 
+    if (line.trim() === "$$") {
+      if (currentBlockType === "text") {
+        if (currentContent.length > 0 || currentContent.join("").trim() !== "") {
+          blocks.push({
+            id: generateId(),
+            type: "text",
+            content: currentContent.join("\n").trim(),
+          });
+        }
+        currentContent = [];
+        currentBlockType = "math";
+        continue;
+      } else if (currentBlockType === "math") {
+        blocks.push({
+          id: generateId(),
+          type: "math",
+          content: currentContent.join("\n"),
+        });
+        currentContent = [];
+        currentBlockType = "text";
+        continue;
+      }
+    }
+
     if (line.startsWith("```")) {
       if (currentBlockType === "text") {
-        // We hit the start of a code block. Save the current text block if it has content.
         if (currentContent.length > 0 || currentContent.join("").trim() !== "") {
           blocks.push({
             id: generateId(),
@@ -58,8 +81,7 @@ export function parseMarkdownToBlocks(markdown: string): NotebookBlock[] {
         currentContent = [];
         currentBlockType = "code";
         currentLanguage = line.slice(3).trim();
-      } else {
-        // We hit the end of a code block.
+      } else if (currentBlockType === "code") {
         blocks.push({
           id: generateId(),
           type: "code",
@@ -69,6 +91,8 @@ export function parseMarkdownToBlocks(markdown: string): NotebookBlock[] {
         currentContent = [];
         currentLanguage = "";
         currentBlockType = "text";
+      } else {
+        currentContent.push(line);
       }
     } else {
       currentContent.push(line);
@@ -105,6 +129,9 @@ export function serializeBlocksToMarkdown(blocks: NotebookBlock[]): string {
       }
       if (block.type === "canvas") {
         return `${CANVAS_PREFIX}${block.content}${CANVAS_SUFFIX}`;
+      }
+      if (block.type === "math") {
+        return `$$\n${block.content}\n$$`;
       }
       return block.content.trim();
     })
