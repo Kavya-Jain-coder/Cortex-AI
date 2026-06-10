@@ -46,6 +46,14 @@ async def reindex(
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
+        # storage3 async client throws StorageException when file not found
+        if type(e).__name__ == "StorageException" and getattr(e, "args", [{}])[0].get("statusCode") == 400:
+            logger.warning("File missing in storage for doc_id=%s: %s", doc_id, str(e))
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="PDF file not found in storage bucket",
+            )
+        
         logger.exception("Reindex failed for doc_id=%s", doc_id)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
