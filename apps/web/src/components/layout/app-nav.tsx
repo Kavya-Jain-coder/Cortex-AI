@@ -9,13 +9,14 @@ import { BarChart3, BookOpen, BrainCircuit, Files, GraduationCap, LogOut, UserCi
 import { cn } from "@/lib/utils";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const navItems = [
-  { href: "/notes", label: "Notes", icon: BookOpen },
-  { href: "/library", label: "Library", icon: Files },
-  { href: "/assignments", label: "Assignments", icon: GraduationCap },
-  { href: "/study-tools", label: "AI Tools", icon: BrainCircuit },
-  { href: "/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/notes", label: "Notes", description: "Create and organize your markdown & canvas notes", icon: BookOpen },
+  { href: "/library", label: "Library", description: "Upload and manage your PDFs, slides, and documents", icon: Files },
+  { href: "/assignments", label: "Assignments", description: "Track your homework, projects, and deadlines", icon: GraduationCap },
+  { href: "/study-tools", label: "AI Tools", description: "Generate quizzes, find weak topics, and predict exam questions", icon: BrainCircuit },
+  { href: "/analytics", label: "Analytics", description: "View your study habits and progress", icon: BarChart3 },
 ] as const;
 
 export function AppNav() {
@@ -57,17 +58,23 @@ export function AppNav() {
           const active = pathname === item.href || pathname?.startsWith(`${item.href}/`);
           const Icon = item.icon;
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex h-9 shrink-0 items-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground",
-                active && "border border-primary/25 bg-accent font-semibold text-accent-foreground shadow-[inset_0_1px_0_hsl(0_0%_100%/0.04)]"
-              )}
-            >
-              <Icon className="h-4 w-4" />
-              <span>{item.label}</span>
-            </Link>
+            <Tooltip key={item.href}>
+              <TooltipTrigger asChild>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "flex h-9 shrink-0 items-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground",
+                    active && "border border-primary/25 bg-accent font-semibold text-accent-foreground shadow-[inset_0_1px_0_hsl(0_0%_100%/0.04)]"
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" sideOffset={8}>
+                {item.description}
+              </TooltipContent>
+            </Tooltip>
           );
         })}
       </nav>
@@ -78,9 +85,16 @@ export function AppNav() {
             <span className="max-w-40 truncate text-xs text-muted-foreground">{user.email}</span>
           </div>
         )}
-        <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out">
-          <LogOut className="h-4 w-4" />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" sideOffset={8}>
+            Sign out of Cortex
+          </TooltipContent>
+        </Tooltip>
       </div>
     </header>
   );

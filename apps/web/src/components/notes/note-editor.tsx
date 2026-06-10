@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useNote, useUpdateNote } from "@/lib/hooks/use-notes";
 import { useSubjects } from "@/lib/hooks/use-subjects";
 import { analyticsApi } from "@/lib/api/analytics";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { parseMarkdownToBlocks, serializeBlocksToMarkdown, NotebookBlock } from "@/lib/utils/notebook-parser";
 import { NotebookEditor } from "./notebook-editor";
@@ -195,46 +196,68 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
             placeholder="Untitled note"
           />
           {note.type === "typed" && (
-            <Button
-              type="button"
-              onClick={handleExport}
-              variant="outline"
-              className="gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Export Markdown
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  onClick={handleExport}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Export Markdown
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" sideOffset={8}>
+                Download your note as a clean Markdown file
+              </TooltipContent>
+            </Tooltip>
           )}
-          <Button
-            type="button"
-            onClick={save}
-            disabled={!dirty || updateNote.isPending}
-            className={cn("gap-2", dirty && "glow-golden")}
-          >
-            {updateNote.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Save
-          </Button>
+          
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                onClick={save}
+                disabled={!dirty || updateNote.isPending}
+                className={cn("gap-2", dirty && "glow-golden")}
+              >
+                {updateNote.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Save
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" sideOffset={8}>
+              Save your changes (Cmd+S)
+            </TooltipContent>
+          </Tooltip>
 
           {/* AI Tutor toggle button */}
-          <Button
-            type="button"
-            variant={tutorOpen ? "secondary" : "outline"}
-            size="icon"
-            onClick={() => setTutorOpen((prev) => !prev)}
-            aria-label={tutorOpen ? "Close AI Tutor" : "Open AI Tutor"}
-            className={cn(
-              "relative shrink-0 transition-colors",
-              tutorOpen && "bg-primary/10 text-primary border-primary/30"
-            )}
-          >
-            <Bot className="h-4 w-4" />
-            {!tutorOpen && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
-              </span>
-            )}
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant={tutorOpen ? "secondary" : "outline"}
+                size="icon"
+                onClick={() => setTutorOpen((prev) => !prev)}
+                aria-label={tutorOpen ? "Close AI Tutor" : "Open AI Tutor"}
+                className={cn(
+                  "relative shrink-0 transition-colors",
+                  tutorOpen && "bg-primary/10 text-primary border-primary/30"
+                )}
+              >
+                <Bot className="h-4 w-4" />
+                {!tutorOpen && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
+                  </span>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" sideOffset={8}>
+              {tutorOpen ? "Close AI Tutor" : "Ask the AI Tutor questions about your notes"}
+            </TooltipContent>
+          </Tooltip>
         </header>
 
         <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border px-4 py-3">
