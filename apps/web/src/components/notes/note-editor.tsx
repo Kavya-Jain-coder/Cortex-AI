@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { useNote, useUpdateNote } from "@/lib/hooks/use-notes";
 import { useSubjects } from "@/lib/hooks/use-subjects";
 import { cn } from "@/lib/utils";
+import { parseMarkdownToBlocks, serializeBlocksToMarkdown, NotebookBlock } from "@/lib/utils/notebook-parser";
+import { NotebookEditor } from "./notebook-editor";
 import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -52,7 +54,8 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [canvasData, setCanvasData] = useState<string | null>(null);
+  const [blocks, setBlocks] = useState<NotebookBlock[]>([]);
+  const [canvasData, setCanvasData] = useState<any>(null);
   const [subjectId, setSubjectId] = useState<string | null>(null);
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -62,6 +65,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     if (!note) return;
     setTitle(note.title);
     setContent(note.content ?? "");
+    setBlocks(parseMarkdownToBlocks(note.content ?? ""));
     setCanvasData(note.canvasData);
     setSubjectId(note.subjectId);
     setTags(note.tags ?? []);
@@ -82,7 +86,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     if (!note) return;
     try {
       await updateNote.mutateAsync({
-        noteId,
+        noteId: note.id,
         payload: {
           title: title.trim() || "Untitled",
           content: note.type === "typed" ? content : note.content ?? "",
@@ -97,6 +101,22 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
         description: err instanceof Error ? err.message : undefined,
       });
     }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        save();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [save]);
+
+  const handleBlocksChange = (newBlocks: NotebookBlock[]) => {
+    setBlocks(newBlocks);
+    setContent(serializeBlocksToMarkdown(newBlocks));
   };
 
   const addTag = () => {
@@ -253,28 +273,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
         {note.type === "canvas" ? (
           <CanvasNoteEditor value={canvasData} onChange={setCanvasData} />
         ) : (
-          <div className="flex-1 overflow-hidden p-0 relative flex flex-col" data-color-mode="dark">
-            <div className="bg-muted/30 px-4 py-2 flex flex-wrap items-center gap-4 text-xs text-muted-foreground border-b border-border/50">
-              <span className="flex items-center gap-1.5 text-primary"><Bot className="h-3.5 w-3.5"/> <strong>Coding Tip:</strong></span>
-              <span>Type <code className="bg-muted px-1.5 py-0.5 rounded text-foreground font-mono">```python</code> for Python blocks</span>
-              <span>Type <code className="bg-muted px-1.5 py-0.5 rounded text-foreground font-mono">```cpp</code> for C++</span>
-              <span>Type <code className="bg-muted px-1.5 py-0.5 rounded text-foreground font-mono">```java</code> for Java</span>
-              <span>Type <code className="bg-muted px-1.5 py-0.5 rounded text-foreground font-mono">$$</code> for Math</span>
-            </div>
-            <MDEditor
-              value={content}
-              onChange={(val) => setContent(val || "")}
-              height="100%"
-              className="w-full flex-1 border-none !bg-background"
-              previewOptions={{
-                remarkPlugins: [remarkMath],
-                rehypePlugins: [rehypeKatex],
-              }}
-              textareaProps={{
-                placeholder: "Start writing... To write code, use triple backticks like ```python followed by your code.",
-              }}
-            />
-          </div>
+          <NotebookEditor blocks={blocks} onChange={handleBlocksChange} />
         )}
       </main>
 
