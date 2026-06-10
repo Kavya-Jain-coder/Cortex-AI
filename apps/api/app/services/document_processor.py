@@ -270,12 +270,17 @@ async def index_note(
     Returns number of chunks indexed.
     """
     from app.models.models import Note
+    import re
 
-    if not content.strip():
+    # Strip out inline canvas data from the text before sending to Qdrant/Embeddings
+    # to prevent enormous JSON payloads from crashing the chunker or LLM API.
+    clean_content = re.sub(r'<!-- CORTEX_CANVAS: .*? -->', '', content, flags=re.DOTALL)
+
+    if not clean_content.strip():
         return 0
 
     chunks = chunk_text(
-        text=content,
+        text=clean_content,
         source_id=note_id,
         source_type="note",
         user_id=user_id,
