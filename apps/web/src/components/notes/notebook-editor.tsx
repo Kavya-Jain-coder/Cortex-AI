@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { Trash2, Code2, Type } from "lucide-react";
+import { Trash2, Code2, Type, Sigma, SquarePen } from "lucide-react";
 import CodeEditor from "@uiw/react-textarea-code-editor";
 import { cn } from "@/lib/utils";
 import { NotebookBlock } from "@/lib/utils/notebook-parser";
 import { Button } from "@/components/ui/button";
+import { CanvasNoteEditor } from "./canvas-note-editor";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.css";
@@ -40,14 +41,23 @@ export function NotebookEditor({ blocks, onChange }: NotebookEditorProps) {
     onChange(newBlocks);
   };
 
-  const addBlock = (index: number, type: "text" | "code") => {
+  const addBlock = (index: number, type: "text" | "code" | "canvas" | "math") => {
     const newBlocks = [...blocks];
-    newBlocks.splice(index + 1, 0, {
-      id: Math.random().toString(),
-      type,
-      content: "",
-      language: type === "code" ? "python" : undefined,
-    });
+    
+    if (type === "math") {
+      newBlocks.splice(index + 1, 0, {
+        id: Math.random().toString(),
+        type: "text",
+        content: "$$\\n\\n$$",
+      });
+    } else {
+      newBlocks.splice(index + 1, 0, {
+        id: Math.random().toString(),
+        type: type,
+        content: type === "canvas" ? "{}" : "",
+        language: type === "code" ? "python" : undefined,
+      });
+    }
     onChange(newBlocks);
   };
 
@@ -97,6 +107,15 @@ export function NotebookEditor({ blocks, onChange }: NotebookEditorProps) {
                     }}
                   />
                 </div>
+              ) : block.type === "canvas" ? (
+                <div className="rounded-md overflow-hidden border border-border bg-muted/30 h-[400px] flex flex-col relative">
+                  <div className="absolute top-0 right-0 z-20 pointer-events-none p-2 text-xs font-mono text-muted-foreground opacity-50 bg-background/50 rounded-bl">Canvas</div>
+                  <CanvasNoteEditor 
+                    value={block.content} 
+                    onChange={(snapshot) => updateBlock(block.id, { content: snapshot })} 
+                    className="flex-1 w-full h-full relative"
+                  />
+                </div>
               ) : (
                 <TextBlock 
                   content={block.content} 
@@ -114,7 +133,7 @@ export function NotebookEditor({ blocks, onChange }: NotebookEditorProps) {
   );
 }
 
-function AddBlockBar({ onAdd }: { onAdd: (type: "text" | "code") => void }) {
+function AddBlockBar({ onAdd }: { onAdd: (type: "text" | "code" | "canvas" | "math") => void }) {
   return (
     <div className="opacity-0 hover:opacity-100 py-3 -my-3 relative z-20 flex justify-center items-center transition-opacity">
       <div className="absolute inset-x-0 h-px bg-border top-1/2 -translate-y-1/2" />
@@ -124,6 +143,12 @@ function AddBlockBar({ onAdd }: { onAdd: (type: "text" | "code") => void }) {
         </Button>
         <Button size="sm" variant="outline" className="h-7 text-xs rounded-full shadow-sm" onClick={() => onAdd("code")}>
           <Code2 className="h-3 w-3 mr-1.5" /> + Code
+        </Button>
+        <Button size="sm" variant="outline" className="h-7 text-xs rounded-full shadow-sm" onClick={() => onAdd("math")}>
+          <Sigma className="h-3 w-3 mr-1.5" /> + Math
+        </Button>
+        <Button size="sm" variant="outline" className="h-7 text-xs rounded-full shadow-sm" onClick={() => onAdd("canvas")}>
+          <SquarePen className="h-3 w-3 mr-1.5" /> + Canvas
         </Button>
       </div>
     </div>

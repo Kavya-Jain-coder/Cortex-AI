@@ -1,4 +1,4 @@
-export type BlockType = "text" | "code";
+export type BlockType = "text" | "code" | "canvas";
 
 export interface NotebookBlock {
   id: string;
@@ -6,6 +6,9 @@ export interface NotebookBlock {
   content: string;
   language?: string;
 }
+
+const CANVAS_PREFIX = "<!-- CORTEX_CANVAS: ";
+const CANVAS_SUFFIX = " -->";
 
 export function parseMarkdownToBlocks(markdown: string): NotebookBlock[] {
   if (!markdown) {
@@ -21,10 +24,30 @@ export function parseMarkdownToBlocks(markdown: string): NotebookBlock[] {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] || "";
+    
+    if (line.startsWith(CANVAS_PREFIX) && line.endsWith(CANVAS_SUFFIX)) {
+      // Save any pending text block before pushing canvas block
+      if (currentBlockType === "text" && (currentContent.length > 0 || currentContent.join("").trim() !== "")) {
+        blocks.push({
+          id: generateId(),
+          type: "text",
+          content: currentContent.join("\n").trim(),
+        });
+      }
+      currentContent = [];
+      currentBlockType = "text"; // reset to text after canvas
+      
+      blocks.push({
+        id: generateId(),
+        type: "canvas",
+        content: line.substring(CANVAS_PREFIX.length, line.length - CANVAS_SUFFIX.length),
+      });
+      continue;
+    }
+
     if (line.startsWith("```")) {
       if (currentBlockType === "text") {
         // We hit the start of a code block. Save the current text block if it has content.
-        // We only save if there is content or if we haven't created any blocks yet.
         if (currentContent.length > 0 || currentContent.join("").trim() !== "") {
           blocks.push({
             id: generateId(),
@@ -79,6 +102,9 @@ export function serializeBlocksToMarkdown(blocks: NotebookBlock[]): string {
     .map((block) => {
       if (block.type === "code") {
         return `\`\`\`${block.language || ""}\n${block.content}\n\`\`\``;
+      }
+      if (block.type === "canvas") {
+        return `${CANVAS_PREFIX}${block.content}${CANVAS_SUFFIX}`;
       }
       return block.content.trim();
     })
