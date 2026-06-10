@@ -31,7 +31,7 @@ export function CanvasNoteEditor({ value, onChange }: CanvasNoteEditorProps) {
 
   useEffect(() => {
     if (editorRef.current) {
-      editorRef.current.user.updateUserPreferences({ isDarkMode: isDark });
+      editorRef.current.user.updateUserPreferences({ colorScheme: isDark ? "dark" : "light" });
     }
   }, [isDark]);
 
