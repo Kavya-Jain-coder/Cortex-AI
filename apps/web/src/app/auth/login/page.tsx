@@ -47,7 +47,7 @@ function LoginForm() {
   return (
     <AuthCard
       title="Welcome back"
-      description="Sign in to continue to your notes, documents, and AI tutor."
+      description="Sign in to access your engineering notes, LaTeX documents, and AI tutor."
       footer={
         <>
           New to Cortex? <Link href="/auth/signup" className="font-medium text-foreground underline">Create an account</Link>

@@ -48,6 +48,9 @@ export function AppNav() {
           height={35}
           className="object-contain"
         />
+        <span className="ml-2 hidden rounded bg-primary/20 px-1.5 py-0.5 text-[10px] font-bold text-primary uppercase tracking-widest sm:block border border-primary/30">
+          Engineering
+        </span>
       </Link>
       <nav className="flex min-w-0 items-center gap-1 overflow-x-auto">
         {navItems.map((item) => {

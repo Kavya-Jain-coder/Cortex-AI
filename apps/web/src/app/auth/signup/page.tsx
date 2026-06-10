@@ -45,7 +45,7 @@ export default function SignupPage() {
   return (
     <AuthCard
       title="Create your account"
-      description="Start building your AI-native study workspace."
+      description="The ultimate AI workspace built exclusively for Engineering Students."
       footer={
         <>
           Already have an account? <Link href="/auth/login" className="font-medium text-foreground underline">Sign in</Link>

@@ -9,8 +9,8 @@ const cormorant = Cormorant_Garamond({ subsets: ["latin"], variable: "--font-hea
 const jet = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", weight: ["400", "700"] });
 
 export const metadata: Metadata = {
-  title: { default: "StudyOS", template: "%s | StudyOS" },
-  description: "AI-native education platform",
+  title: { default: "Cortex | Engineering OS", template: "%s | Cortex Engineering OS" },
+  description: "AI-native engineering workspace",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
