@@ -7,6 +7,7 @@ import type { QuizQuestion } from "@/lib/api/study-tools";
 import { useGenerateQuiz, usePredictions, useWeakTopics } from "@/lib/hooks/use-study-tools";
 import { useNotesUIStore } from "@/store/notes-ui.store";
 import { SourceScopePanel } from "@/components/ai/source-scope-panel";
+import { ChatMarkdown } from "@/components/ai/chat-markdown";
 import { PageFrame } from "@/components/layout/page-frame";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -218,7 +219,7 @@ export default function StudyToolsPage() {
                     }}
                   />
                 ) : (
-                  <div className="grid gap-3">
+                  <div className="grid gap-5">
                     {data.items.map((item, index) => (
                       <ResultCard key={index} item={item as unknown as Record<string, unknown>} index={index} mode={mode} />
                     ))}
@@ -263,63 +264,68 @@ function ResultCard({
     item.confidence !== undefined ? Math.round(Number(item.confidence) * 100) : null;
 
   return (
-    <article className="rounded-lg border border-border bg-background p-4 relative group">
-      <div className="mb-2 flex items-start justify-between gap-3">
-        <h2 className="text-sm font-semibold leading-6">{index + 1}. {title}</h2>
-        <div className="flex items-center gap-1.5 shrink-0">
-          {difficulty && <Badge variant="outline" className="capitalize">{difficulty}</Badge>}
-          {confidence !== null && <Badge variant="outline">{confidence}%</Badge>}
+  return (
+    <article className="rounded-xl border border-border bg-background p-5 relative group shadow-sm transition-shadow hover:shadow-md">
+      <div className="mb-3 flex items-start justify-between gap-4">
+        <div className="flex gap-2 text-sm font-semibold leading-relaxed">
+          <span className="shrink-0 text-muted-foreground">{index + 1}.</span>
+          <ChatMarkdown content={title} className="[&>p]:inline [&>p]:mb-0" />
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {difficulty && <Badge variant="outline" className="capitalize bg-muted/40">{difficulty}</Badge>}
+          {confidence !== null && <Badge variant="outline" className="bg-muted/40">{confidence}%</Badge>}
           
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0">
-                <Maximize2 className="h-3.5 w-3.5" />
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0 rounded-full hover:bg-muted/60">
+                <Maximize2 className="h-4 w-4" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-xl bg-card border border-border/80">
-              <DialogHeader>
+            <DialogContent className="max-w-2xl bg-card border border-border/80 p-0 overflow-hidden">
+              <DialogHeader className="px-6 py-4 border-b border-border/40 bg-muted/20">
                 <DialogTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
                   Enlarged View — {mode === "quiz" ? "Quiz Question" : mode === "weak-topics" ? "Weak Topic" : "Predicted Question"}
                 </DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 py-4">
-                <h2 className="text-lg font-bold leading-normal text-foreground">
-                  {title}
-                </h2>
+              <div className="space-y-6 px-6 py-6 overflow-y-auto max-h-[75vh]">
+                <div className="text-lg font-bold leading-relaxed text-foreground">
+                  <ChatMarkdown content={title} className="[&>p]:inline [&>p]:mb-0" />
+                </div>
                 
                 {mode === "quiz" && Array.isArray(item.options) && item.options.length > 0 && (
-                  <div className="grid gap-2">
+                  <div className="grid gap-3">
                     {item.options.map((opt: string, idx: number) => (
                       <div
                         key={idx}
-                        className="flex items-center gap-3 rounded-lg border border-border/80 bg-muted/30 p-3.5 text-sm"
+                        className="flex items-center gap-4 rounded-xl border border-border/60 bg-muted/20 p-4 text-sm hover:bg-muted/40 transition-colors"
                       >
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-primary/10 text-xs font-bold text-primary">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-sm font-bold text-primary">
                           {String.fromCharCode(65 + idx)}
                         </span>
-                        <span>{opt}</span>
+                        <ChatMarkdown content={opt} className="[&>p]:inline [&>p]:mb-0" />
                       </div>
                     ))}
                   </div>
                 )}
                 
                 {primary && (
-                  <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4 mt-2">
-                    <p className="text-xs font-bold uppercase tracking-wider text-emerald-500 mb-1">
+                  <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5 mt-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-500 mb-3 flex items-center gap-2">
+                      <Sparkles className="h-3.5 w-3.5" />
                       {mode === "quiz" ? "Correct Answer" : "Explanation / Rationale"}
                     </p>
-                    <p className="text-sm leading-relaxed text-foreground">
-                      {primary}
-                    </p>
+                    <div className="text-sm leading-relaxed text-foreground/90">
+                      <ChatMarkdown content={primary} />
+                    </div>
                   </div>
                 )}
                 
                 {secondary && (
                   <div className="pt-2">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
                       {mode === "weak-topics" ? "Suggested Next Action" : "Topic Reference"}
                     </p>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                       {secondary}
                     </p>
                   </div>
@@ -331,18 +337,18 @@ function ResultCard({
       </div>
 
       {mode === "quiz" && Array.isArray(item.options) && item.options.length > 0 && (
-        <div className="mt-3 grid gap-2">
+        <div className="mt-4 grid gap-2.5 pl-6">
           {item.options.map((opt: string, idx: number) => {
             const letter = String.fromCharCode(65 + idx);
             return (
               <div
                 key={idx}
-                className="flex items-center gap-2.5 rounded-md border border-border/60 bg-muted/40 p-2.5 text-xs text-foreground"
+                className="flex items-center gap-3 rounded-lg border border-border/40 bg-muted/20 p-3 text-xs text-foreground hover:bg-muted/40 transition-colors"
               >
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-primary/10 text-[10px] font-bold text-primary">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-primary/10 text-[11px] font-bold text-primary">
                   {letter}
                 </span>
-                <span>{opt}</span>
+                <ChatMarkdown content={opt} className="[&>p]:inline [&>p]:mb-0" />
               </div>
             );
           })}
@@ -350,22 +356,27 @@ function ResultCard({
       )}
 
       {mode === "quiz" && primary && (
-        <details className="mt-3 group">
-          <summary className="text-[11px] font-semibold text-primary/80 cursor-pointer select-none list-none flex items-center gap-1 hover:text-primary transition-colors">
+        <details className="mt-4 group pl-6">
+          <summary className="text-[12px] font-medium text-primary/80 cursor-pointer select-none list-none flex items-center gap-1.5 hover:text-primary transition-colors">
             <span>Show Correct Answer</span>
           </summary>
-          <div className="mt-2 rounded border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-500 font-medium animate-in fade-in-50 duration-200">
-            Correct Answer: {primary}
+          <div className="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-emerald-600 dark:text-emerald-500 font-medium animate-in fade-in duration-200">
+            <div className="text-xs font-bold uppercase tracking-wider mb-2 opacity-80">Correct Answer</div>
+            <ChatMarkdown content={primary} className="[&>p]:inline [&>p]:mb-0" />
           </div>
         </details>
       )}
 
       {mode !== "quiz" && primary && (
-        <p className="text-sm leading-6 text-muted-foreground mt-2">{primary}</p>
+        <div className="text-sm leading-relaxed text-muted-foreground mt-4 pl-6">
+          <ChatMarkdown content={primary} />
+        </div>
       )}
 
       {secondary && mode !== "quiz" && (
-        <p className="mt-2 text-xs text-muted-foreground">{secondary}</p>
+        <p className="mt-3 text-xs text-muted-foreground/80 pl-6 border-l-2 border-border/60 ml-6 pl-3">
+          {secondary}
+        </p>
       )}
     </article>
   );
