@@ -3,7 +3,6 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   typedRoutes: false,
-  transpilePackages: ["tldraw", "@tldraw/tldraw"],
   outputFileTracingRoot: path.join(__dirname, "../../"),
   images: {
     remotePatterns: [

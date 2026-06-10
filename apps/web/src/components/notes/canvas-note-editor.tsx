@@ -25,7 +25,7 @@ export function CanvasNoteEditor({ value, onChange }: CanvasNoteEditorProps) {
   }, [value]);
 
   return (
-    <div className="h-full min-h-0 overflow-hidden border-t border-border bg-background">
+    <div className="relative flex-1 h-full min-h-0 overflow-hidden border-t border-border bg-background">
       <Tldraw
         persistenceKey={undefined}
         onMount={(editor) => {
