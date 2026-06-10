@@ -1,7 +1,7 @@
 <div align="center">
   <img src="https://cortex-ai-web.vercel.app/favicon.ico" width="80" height="80" alt="Cortex AI Logo" />
-  <h1>Cortex AI (StudyOS)</h1>
-  <p><strong>A Production-Grade, AI-Native Education & Study Platform</strong></p>
+  <h1>Cortex | Engineering OS</h1>
+  <p><strong>A Production-Grade, AI-Native Workspace Built Exclusively for Engineering Students</strong></p>
   
   <p>
     <a href="https://cortex-ai-web.vercel.app" target="_blank">View Live Application</a>
@@ -12,18 +12,19 @@
 
 ---
 
-## 🧠 What is Cortex AI?
+## 🧠 What is Cortex?
 
-Cortex AI (internally known as StudyOS) is a modern, unified workspace designed for students and continuous learners. It brings together rich note-taking, infinite drawing canvases, and advanced AI study tools into a single, cohesive interface.
+Cortex is the ultimate Engineering OS. It brings together rich LaTeX math support, infinite drawing canvases, code blocks, and advanced AI study tools into a single, cohesive interface tailored for CS, Math, and Engineering students.
 
-Rather than juggling multiple apps for flashcards, notes, PDFs, and chatbots, Cortex AI unifies them. The platform leverages cutting-edge Retrieval-Augmented Generation (RAG) and generative AI to help you learn faster and retain more information.
+Rather than juggling multiple apps for flashcards, notes, PDFs, and chatbots, Cortex unifies them. The platform leverages cutting-edge Retrieval-Augmented Generation (RAG) and generative AI to help you learn faster and retain more information.
 
-### ✨ Key Features
+### ✨ Key Engineering Features
 
-- **Multi-Modal Notes**: Create folders, subjects, and take notes using a Notion-style Rich Text editor or an infinite Canvas (powered by `tldraw`) for handwritten diagrams.
-- **AI Tutors & Tools**: Chat directly with AI models (Gemini & Llama 3) that have context of your uploaded study materials. Generate summaries, quizzes, and flashcards instantly.
-- **Library & Document Chat**: Upload PDFs, slides, and documents. Cortex AI vectors them via Qdrant, allowing you to seamlessly "chat" with your textbooks.
-- **Dark Mode Optimized**: Beautiful, responsive, accessible UI built with Tailwind CSS and Radix UI primitives.
+- **Advanced Markdown & Math Editor**: Edit notes using `@uiw/react-md-editor` with built-in KaTeX support. Type `$$` for beautifully rendered Calculus, Physics, or ML formulas and code snippets.
+- **Proactive AI Study Guides**: Upload a PDF or lecture slide, and Cortex automatically extracts the text in the background. Within 15 seconds, Gemini 1.5 Flash generates a complete Study Guide and Flashcards, saving them directly to your Notes dashboard.
+- **Zero Lock-In Exporters**: Don't trap your data. Export your notes seamlessly to Markdown (`.md`), and export your AI-generated flashcards directly to a CSV that can be natively imported into Anki.
+- **Multi-Modal Canvases**: Create infinite canvases (powered by `tldraw`) for handwritten circuit diagrams, architectures, and flowcharts.
+- **Library & Document Chat**: Upload PDFs. Cortex vectors them via Qdrant, allowing you to seamlessly "chat" with your textbooks.
 
 ---
 
