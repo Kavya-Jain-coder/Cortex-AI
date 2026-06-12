@@ -27,22 +27,25 @@ export function AuthCard({
       <div className="absolute inset-0 bg-transparent" />
 
       {/* Card */}
-      <div className="relative z-10 w-full max-w-md rounded-xl border border-golden/20 bg-black/70 p-7 shadow-[0_24px_80px_hsl(0_0%_0%/0.5)] backdrop-blur-xl">
-        <Link href="/" className="mb-6 flex items-center">
+      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-black/40 p-8 shadow-[0_8px_40px_rgb(0_0_0_/_0.8)] backdrop-blur-2xl sm:p-10">
+        {/* Subtle golden top glow line */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-golden/50 to-transparent" />
+        
+        <Link href="/" className="mb-8 flex justify-center">
           <Image
             src="/images/logo-transparent.png"
             alt="Cortex Logo"
             width={180}
             height={48}
-            className="object-contain"
+            className="object-contain drop-shadow-md"
           />
         </Link>
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold tracking-normal">{title}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold tracking-tight text-white">{title}</h1>
+          <p className="mt-2 text-sm text-zinc-400">{description}</p>
         </div>
         {children}
-        {footer && <div className="mt-6 text-center text-sm text-muted-foreground">{footer}</div>}
+        {footer && <div className="mt-8 text-center text-sm text-zinc-500">{footer}</div>}
       </div>
     </main>
   );
