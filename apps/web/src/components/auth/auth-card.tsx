@@ -22,29 +22,46 @@ export function AuthCard({
         unoptimized
         className="object-cover -z-10"
       />
-      {/* Dark overlay for readability (removed to prevent dimming) */}
-      <div className="absolute inset-0 bg-transparent" />
 
       {/* Card */}
-      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-black/40 p-8 shadow-[0_8px_40px_rgb(0_0_0_/_0.8)] backdrop-blur-2xl sm:p-10">
-        {/* Subtle golden top glow line */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-golden/50 to-transparent" />
-        
-        <div className="mb-8 flex justify-center">
+      <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-3xl border border-white/[0.08] bg-black/50 px-10 py-12 shadow-[0_16px_70px_rgb(0_0_0_/_0.7)] backdrop-blur-2xl sm:px-14 sm:py-14">
+        {/* Golden top accent line */}
+        <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
+        {/* Subtle inner glow */}
+        <div className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-b from-amber-500/[0.04] to-transparent" />
+
+        <div className="relative mb-10 flex justify-center">
           <Image
             src="/images/logo-transparent.png"
             alt="Cortex Logo"
-            width={180}
-            height={48}
-            className="object-contain drop-shadow-md"
+            width={200}
+            height={54}
+            className="object-contain drop-shadow-lg"
           />
         </div>
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-white">{title}</h1>
-          <p className="mt-2 text-sm text-zinc-400">{description}</p>
+        <div className="relative mb-10 text-center">
+          <h1
+            className="text-4xl font-bold tracking-wide text-white sm:text-[2.5rem]"
+            style={{ fontFamily: "var(--font-cinzel-decorative), serif" }}
+          >
+            {title}
+          </h1>
+          <p
+            className="mt-3 text-[0.9rem] leading-relaxed text-zinc-400"
+            style={{ fontFamily: "var(--font-cinzel), serif" }}
+          >
+            {description}
+          </p>
         </div>
-        {children}
-        {footer && <div className="mt-8 text-center text-sm text-zinc-500">{footer}</div>}
+        <div className="relative">{children}</div>
+        {footer && (
+          <div
+            className="relative mt-10 text-center text-sm text-zinc-500"
+            style={{ fontFamily: "var(--font-cinzel), serif" }}
+          >
+            {footer}
+          </div>
+        )}
       </div>
     </main>
   );
