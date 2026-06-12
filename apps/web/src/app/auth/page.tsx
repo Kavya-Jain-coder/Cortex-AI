@@ -125,16 +125,18 @@ function ParticleCanvas() {
       // Draw lines
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
-          const dx = nodes[i].x - nodes[j].x;
-          const dy = nodes[i].y - nodes[j].y;
+          const a = nodes[i]!;
+          const b = nodes[j]!;
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < MAX_DIST) {
             const alpha = (1 - dist / MAX_DIST) * 0.15;
             ctx!.strokeStyle = `rgba(201,168,76,${alpha})`;
             ctx!.lineWidth = 0.5;
             ctx!.beginPath();
-            ctx!.moveTo(nodes[i].x, nodes[i].y);
-            ctx!.lineTo(nodes[j].x, nodes[j].y);
+            ctx!.moveTo(a.x, a.y);
+            ctx!.lineTo(b.x, b.y);
             ctx!.stroke();
           }
         }
