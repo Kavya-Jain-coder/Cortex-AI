@@ -12,7 +12,7 @@ export function AuthCard({
   children: React.ReactNode;
 }) {
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden p-4">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-10">
       {/* Background image */}
       <Image
         src="/images/auth-bg.jpg"
@@ -20,48 +20,59 @@ export function AuthCard({
         fill
         priority
         unoptimized
-        className="object-cover -z-10"
+        className="object-cover -z-20"
+      />
+
+      {/* Radial vignette — darkens edges so the background doesn't compete with the card */}
+      <div
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 55% at 50% 50%, transparent 0%, rgba(0,0,0,0.55) 100%)",
+        }}
       />
 
       {/* Card */}
-      <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-3xl border border-white/[0.08] bg-black/50 px-10 py-12 shadow-[0_16px_70px_rgb(0_0_0_/_0.7)] backdrop-blur-2xl sm:px-14 sm:py-14">
-        {/* Golden top accent line */}
-        <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
-        {/* Subtle inner glow */}
-        <div className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-b from-amber-500/[0.04] to-transparent" />
+      <div className="relative z-10 w-full max-w-[28rem] overflow-hidden rounded-2xl border border-white/[0.06] bg-black/60 shadow-[0_0_80px_rgba(0,0,0,0.8)] backdrop-blur-xl">
+        {/* Golden top accent — 2px warm gradient */}
+        <div className="h-[2px] bg-gradient-to-r from-amber-700/0 via-amber-400/70 to-amber-700/0" />
 
-        <div className="relative mb-10 flex justify-center">
-          <Image
-            src="/images/logo-transparent.png"
-            alt="Cortex Logo"
-            width={200}
-            height={54}
-            className="object-contain drop-shadow-lg"
-          />
-        </div>
-        <div className="relative mb-10 text-center">
-          <h1
-            className="text-4xl font-bold tracking-wide text-white sm:text-[2.5rem]"
-            style={{ fontFamily: "var(--font-cinzel-decorative), serif" }}
-          >
-            {title}
-          </h1>
-          <p
-            className="mt-3 text-[0.9rem] leading-relaxed text-zinc-400"
-            style={{ fontFamily: "var(--font-cinzel), serif" }}
-          >
-            {description}
-          </p>
-        </div>
-        <div className="relative">{children}</div>
-        {footer && (
-          <div
-            className="relative mt-10 text-center text-sm text-zinc-500"
-            style={{ fontFamily: "var(--font-cinzel), serif" }}
-          >
-            {footer}
+        {/* Inner content with generous padding */}
+        <div className="px-10 pb-10 pt-9 sm:px-12 sm:pb-12 sm:pt-10">
+          {/* Logo */}
+          <div className="mb-7 flex justify-center">
+            <Image
+              src="/images/logo-transparent.png"
+              alt="Cortex Logo"
+              width={170}
+              height={46}
+              className="object-contain"
+            />
           </div>
-        )}
+
+          {/* Title & description — clear hierarchy */}
+          <div className="mb-8 text-center">
+            <h1
+              className="text-[1.75rem] font-semibold leading-tight tracking-wide text-white sm:text-[2rem]"
+              style={{ fontFamily: "var(--font-cinzel-decorative), serif" }}
+            >
+              {title}
+            </h1>
+            <p className="mt-2.5 text-[0.82rem] leading-relaxed text-zinc-500">
+              {description}
+            </p>
+          </div>
+
+          {/* Form content */}
+          {children}
+
+          {/* Footer */}
+          {footer && (
+            <div className="mt-8 text-center text-[0.8rem] text-zinc-600">
+              {footer}
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );
