@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { AuthCard } from "@/components/auth/auth-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -64,7 +65,7 @@ function LoginForm() {
             <Label htmlFor="password">Password</Label>
             <Link href="/auth/reset-password" className="text-xs text-muted-foreground underline">Forgot?</Link>
           </div>
-          <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
+          <PasswordInput id="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
         </div>
         <Button className="w-full" disabled={loading}>
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

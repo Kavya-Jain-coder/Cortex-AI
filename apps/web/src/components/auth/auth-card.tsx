@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 
 export function AuthCard({
   title,
@@ -31,7 +30,7 @@ export function AuthCard({
         {/* Subtle golden top glow line */}
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-golden/50 to-transparent" />
         
-        <Link href="/" className="mb-8 flex justify-center">
+        <div className="mb-8 flex justify-center">
           <Image
             src="/images/logo-transparent.png"
             alt="Cortex Logo"
@@ -39,7 +38,7 @@ export function AuthCard({
             height={48}
             className="object-contain drop-shadow-md"
           />
-        </Link>
+        </div>
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight text-white">{title}</h1>
           <p className="mt-2 text-sm text-zinc-400">{description}</p>
