@@ -304,7 +304,7 @@ export default function AuthPage() {
     setSceneVisible(false);
 
     setTimeout(() => {
-      const prev = history[history.length - 1];
+      const prev = history[history.length - 1]!;
       setHistory((h) => h.slice(0, -1));
       setScene(prev);
       requestAnimationFrame(() => {
