@@ -363,7 +363,7 @@ export default function AuthPage() {
   const stepLabel = SCENE_LABEL[scene];
 
   // ─── Shared styles ────────────────────────────────────────────────────────
-  const cardStyle: React.CSSProperties = {
+  const cardStyle = {
     position: "absolute",
     background: "rgba(4, 3, 2, 0.75)",
     border: "none",
@@ -377,8 +377,9 @@ export default function AuthPage() {
     opacity: sceneVisible ? 1 : 0,
     transform: sceneVisible ? "translateY(0)" : "translateY(12px)",
     transition: "opacity 700ms ease, transform 700ms ease",
+    "--y-offset": sceneVisible ? "0px" : "12px",
     ...SCENE_POS[scene],
-  };
+  } as React.CSSProperties;
 
   const labelStyle: React.CSSProperties = {
     fontSize: 9,
@@ -469,6 +470,17 @@ export default function AuthPage() {
           border-left-color: #c9a84c !important;
           color: #f0e8d8 !important;
           padding-left: 20px !important;
+        }
+        @media (max-width: 768px) {
+          .auth-card {
+            top: 50% !important;
+            left: 50% !important;
+            right: auto !important;
+            bottom: auto !important;
+            width: calc(100% - 48px) !important;
+            max-width: 340px !important;
+            transform: translate(-50%, calc(-50% + var(--y-offset, 0px))) !important;
+          }
         }
       `}</style>
       {/* ── Background layers ────────────────────────────────────────────── */}
@@ -611,7 +623,7 @@ export default function AuthPage() {
           SCENE 1 — Welcome
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "welcome" && (
-        <div style={cardStyle}>
+        <div style={cardStyle} className="auth-card">
           <div style={labelStyle}>WELCOME</div>
           <div style={questionStyle}>Have you used Cortex before?</div>
           <button
@@ -635,7 +647,7 @@ export default function AuthPage() {
           SCENE 2A — Sign in: Email
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signin-email" && (
-        <div style={cardStyle}>
+        <div style={cardStyle} className="auth-card">
           <div style={labelStyle}>{SCENE_LABEL["signin-email"]}</div>
           <div style={questionStyle}>What&apos;s your email?</div>
           <input
@@ -663,7 +675,7 @@ export default function AuthPage() {
           SCENE 3A — Sign in: Password
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signin-password" && (
-        <div style={cardStyle}>
+        <div style={cardStyle} className="auth-card">
           <div style={labelStyle}>{SCENE_LABEL["signin-password"]}</div>
           <div style={questionStyle}>And your password?</div>
           <div style={{ position: "relative", marginBottom: 6 }}>
@@ -718,7 +730,7 @@ export default function AuthPage() {
           SCENE 2B — Signup: Name
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signup-name" && (
-        <div style={cardStyle}>
+        <div style={cardStyle} className="auth-card">
           <div style={labelStyle}>{SCENE_LABEL["signup-name"]}</div>
           <div style={questionStyle}>What should we call you?</div>
           <div style={subtextStyle}>This is how you&apos;ll appear in your workspace.</div>
@@ -747,7 +759,7 @@ export default function AuthPage() {
           SCENE 3B — Signup: Email
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signup-email" && (
-        <div style={cardStyle}>
+        <div style={cardStyle} className="auth-card">
           <div style={labelStyle}>{SCENE_LABEL["signup-email"]}</div>
           <div style={questionStyle}>What&apos;s your email address?</div>
           <input
@@ -775,7 +787,7 @@ export default function AuthPage() {
           SCENE 4B — Signup: Field of study
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signup-field" && (
-        <div style={cardStyle}>
+        <div style={cardStyle} className="auth-card">
           <div style={labelStyle}>{SCENE_LABEL["signup-field"]}</div>
           <div style={questionStyle}>What are you studying?</div>
           <div style={subtextStyle}>We&apos;ll personalize your workspace.</div>
@@ -802,7 +814,7 @@ export default function AuthPage() {
           SCENE 5B — Signup: Password
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signup-password" && (
-        <div style={cardStyle}>
+        <div style={cardStyle} className="auth-card">
           <div style={labelStyle}>{SCENE_LABEL["signup-password"]}</div>
           <div style={questionStyle}>Set a strong password.</div>
           <div style={{ position: "relative", marginBottom: 8 }}>
