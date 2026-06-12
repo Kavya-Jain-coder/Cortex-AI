@@ -32,13 +32,13 @@ export function AuthCard({
         }}
       />
 
-      {/* Card */}
+      {/* Card — consistent sizing across login/signup */}
       <div className="relative z-10 w-full max-w-[28rem] overflow-hidden rounded-2xl border border-white/[0.06] bg-black/60 shadow-[0_0_80px_rgba(0,0,0,0.8)] backdrop-blur-xl">
-        {/* Golden top accent — 2px warm gradient */}
+        {/* Golden top accent */}
         <div className="h-[2px] bg-gradient-to-r from-amber-700/0 via-amber-400/70 to-amber-700/0" />
 
-        {/* Inner content with generous padding */}
-        <div className="px-10 pb-10 pt-9 sm:px-12 sm:pb-12 sm:pt-10">
+        {/* Inner content — fixed padding for both pages */}
+        <div className="px-10 pb-11 pt-10 sm:px-12 sm:pb-12 sm:pt-11">
           {/* Logo */}
           <div className="mb-7 flex justify-center">
             <Image
@@ -50,15 +50,15 @@ export function AuthCard({
             />
           </div>
 
-          {/* Title & description — clear hierarchy */}
+          {/* Title & description — sentence case, Cormorant Garamond for elegance with proper lowercase */}
           <div className="mb-8 text-center">
             <h1
-              className="text-[1.75rem] font-semibold leading-tight tracking-wide text-white sm:text-[2rem]"
-              style={{ fontFamily: "var(--font-cinzel-decorative), serif" }}
+              className="text-[2rem] font-semibold leading-tight tracking-[-0.01em] text-white"
+              style={{ fontFamily: "var(--font-heading), Georgia, serif" }}
             >
               {title}
             </h1>
-            <p className="mt-2.5 text-[0.82rem] leading-relaxed text-zinc-500">
+            <p className="mx-auto mt-2.5 max-w-[22rem] text-[0.82rem] leading-relaxed text-zinc-500">
               {description}
             </p>
           </div>

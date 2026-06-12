@@ -41,12 +41,12 @@ export default function SignupPage() {
   };
 
   const inputClasses =
-    "block h-11 w-full rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 text-sm text-white placeholder:text-zinc-600 transition-all focus:border-amber-500/40 focus:bg-white/[0.06] focus:outline-none focus:ring-1 focus:ring-amber-500/30";
+    "block h-12 w-full rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 text-[0.9rem] text-white placeholder:text-zinc-600 transition-all focus:border-amber-500/40 focus:bg-white/[0.06] focus:outline-none focus:ring-1 focus:ring-amber-500/30";
 
   return (
     <AuthCard
-      title="Create account"
-      description="The ultimate AI workspace built exclusively for Engineering Students."
+      title="Create your account"
+      description="The ultimate AI workspace built exclusively for engineering students."
       footer={
         <>
           Already have an account?{" "}
@@ -114,15 +114,19 @@ export default function SignupPage() {
             minLength={8}
             autoComplete="new-password"
             placeholder="Min. 8 characters"
-            className="h-11 rounded-lg border-white/[0.08] bg-white/[0.04] px-4 text-sm text-white placeholder:text-zinc-600 focus:border-amber-500/40 focus:bg-white/[0.06] focus:ring-1 focus:ring-amber-500/30"
+            className="h-12 rounded-lg border-white/[0.08] bg-white/[0.04] px-4 text-[0.9rem] text-white placeholder:text-zinc-600 focus:border-amber-500/40 focus:bg-white/[0.06] focus:ring-1 focus:ring-amber-500/30"
           />
         </div>
 
-        {/* CTA Button */}
+        {/* CTA — gradient gold, sentence case, pressable feel */}
         <button
           type="submit"
           disabled={loading}
-          className="group relative mt-2 flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-sm font-bold uppercase tracking-wider text-black shadow-[0_4px_24px_rgba(245,180,40,0.25)] transition-all duration-200 hover:shadow-[0_6px_32px_rgba(245,180,40,0.35)] hover:brightness-110 disabled:opacity-50 disabled:hover:shadow-none"
+          className="group relative mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-lg text-[0.9rem] font-semibold tracking-normal text-black/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_1px_3px_rgba(0,0,0,0.3),0_4px_16px_rgba(200,155,40,0.2)] transition-all duration-200 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_2px_6px_rgba(0,0,0,0.35),0_6px_24px_rgba(200,155,40,0.3)] hover:brightness-105 active:brightness-95 active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.15),0_1px_2px_rgba(0,0,0,0.2)] disabled:opacity-50 disabled:hover:shadow-none"
+          style={{
+            background:
+              "linear-gradient(180deg, #f5c842 0%, #d4a017 100%)",
+          }}
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
