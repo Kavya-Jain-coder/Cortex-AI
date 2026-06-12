@@ -365,13 +365,14 @@ export default function AuthPage() {
   // ─── Shared styles ────────────────────────────────────────────────────────
   const cardStyle: React.CSSProperties = {
     position: "absolute",
-    background: "rgba(6, 5, 4, 0.85)",
-    border: "1px solid rgba(201, 168, 76, 0.28)",
-    borderRadius: 14,
-    padding: "26px 28px",
+    background: "rgba(4, 3, 2, 0.75)",
+    border: "none",
+    borderLeft: "1px solid rgba(201, 168, 76, 0.2)",
+    borderRadius: 0,
+    padding: "32px 36px",
     width: 290,
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
+    backdropFilter: "blur(12px)",
+    WebkitBackdropFilter: "blur(12px)",
     zIndex: 20,
     opacity: sceneVisible ? 1 : 0,
     transform: sceneVisible ? "translateY(0)" : "translateY(12px)",
@@ -403,49 +404,73 @@ export default function AuthPage() {
   };
 
   const inputStyle: React.CSSProperties = {
-    width: "100%",
-    background: "rgba(255,255,255,0.04)",
-    border: "1px solid rgba(201,168,76,0.18)",
-    borderRadius: 7,
-    padding: "11px 13px",
+    background: "transparent",
+    border: "none",
+    borderBottom: "1px solid rgba(201, 168, 76, 0.3)",
+    borderRadius: 0,
+    padding: "10px 4px",
+    fontSize: 15,
     color: "#f0e8d8",
-    fontSize: 14,
+    width: "100%",
     outline: "none",
+    letterSpacing: "0.03em",
+    transition: "border-color 0.2s ease",
     boxSizing: "border-box" as const,
-    transition: "border-color 200ms",
   };
 
   const ctaStyle: React.CSSProperties = {
-    width: "100%",
-    background: "linear-gradient(135deg, #a87c20, #d4a840, #a87c20)",
-    color: "#1a0f00",
-    fontWeight: 700,
-    fontSize: 14,
-    borderRadius: 8,
-    padding: 11,
-    border: "none",
+    background: "transparent",
+    border: "1px solid rgba(201, 168, 76, 0.5)",
+    borderRadius: 6,
+    color: "#c9a84c",
+    padding: "11px 20px",
+    fontSize: 12,
+    letterSpacing: "0.12em",
+    textTransform: "uppercase",
     cursor: "pointer",
+    width: "100%",
+    transition: "background 0.2s ease, border-color 0.2s ease",
     marginTop: 6,
-    transition: "filter 200ms",
   };
 
   const optionBtnStyle: React.CSSProperties = {
-    width: "100%",
-    background: "rgba(201,168,76,0.07)",
-    border: "1px solid rgba(201,168,76,0.22)",
-    borderRadius: 8,
-    color: "#c9a84c",
-    fontSize: 13,
-    padding: "9px 12px",
-    cursor: "pointer",
+    background: "transparent",
+    border: "none",
+    borderLeft: "2px solid rgba(201, 168, 76, 0.25)",
+    borderRadius: 0,
+    color: "rgba(240, 232, 216, 0.6)",
+    padding: "10px 16px",
+    fontSize: 14,
     textAlign: "left" as const,
-    transition: "background 200ms, border-color 200ms",
+    width: "100%",
+    cursor: "pointer",
+    transition: "border-color 0.2s, color 0.2s, padding-left 0.2s",
+    letterSpacing: "0.02em",
     marginBottom: 6,
   };
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div style={{ position: "fixed", inset: 0, background: "#060606", overflow: "hidden" }}>
+            <style>{`
+        .auth-input::placeholder {
+          color: rgba(240, 232, 216, 0.25);
+          font-size: 13px;
+          letter-spacing: 0.05em;
+        }
+        .auth-input:focus {
+          border-bottom: 1px solid rgba(201, 168, 76, 0.85) !important;
+        }
+        .auth-cta:hover:not(:disabled) {
+          background: rgba(201, 168, 76, 0.1) !important;
+          border-color: rgba(201, 168, 76, 0.8) !important;
+        }
+        .auth-option:hover, .auth-option.selected {
+          border-left-color: #c9a84c !important;
+          color: #f0e8d8 !important;
+          padding-left: 20px !important;
+        }
+      `}</style>
       {/* ── Background layers ────────────────────────────────────────────── */}
       {uniqueBgs.map((src) => (
         <div
@@ -590,29 +615,15 @@ export default function AuthPage() {
           <div style={labelStyle}>WELCOME</div>
           <div style={questionStyle}>Have you used Cortex before?</div>
           <button
-            style={optionBtnStyle}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(201,168,76,0.16)";
-              e.currentTarget.style.borderColor = "rgba(201,168,76,0.45)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "rgba(201,168,76,0.07)";
-              e.currentTarget.style.borderColor = "rgba(201,168,76,0.22)";
-            }}
+            style={optionBtnStyle} className="auth-option"
+
             onClick={() => goTo("signin-email")}
           >
             Yes — sign me in
           </button>
           <button
-            style={optionBtnStyle}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(201,168,76,0.16)";
-              e.currentTarget.style.borderColor = "rgba(201,168,76,0.45)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "rgba(201,168,76,0.07)";
-              e.currentTarget.style.borderColor = "rgba(201,168,76,0.22)";
-            }}
+            style={optionBtnStyle} className="auth-option"
+
             onClick={() => goTo("signup-name")}
           >
             No — I&apos;m new here
@@ -632,14 +643,14 @@ export default function AuthPage() {
             placeholder="you@university.edu"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={inputStyle}
-            onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(201,168,76,0.48)")}
-            onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(201,168,76,0.18)")}
+            style={inputStyle} className="auth-input"
+            
+            
             autoFocus
             onKeyDown={(e) => e.key === "Enter" && email && goTo("signin-password")}
           />
           <button
-            style={{ ...ctaStyle, opacity: email ? 1 : 0.5 }}
+            style={{ ...ctaStyle, opacity: email ? 1 : 0.5 }} className="auth-cta"
             disabled={!email}
             onClick={() => goTo("signin-password")}
           >
@@ -661,9 +672,9 @@ export default function AuthPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ ...inputStyle, paddingRight: 38 }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(201,168,76,0.48)")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(201,168,76,0.18)")}
+              style={{ ...inputStyle, paddingRight: 38 }} className="auth-input"
+              
+              
               autoFocus
               onKeyDown={(e) => e.key === "Enter" && password && handleSignIn()}
             />
@@ -694,7 +705,7 @@ export default function AuthPage() {
             </span>
           </div>
           <button
-            style={{ ...ctaStyle, opacity: password ? 1 : 0.5 }}
+            style={{ ...ctaStyle, opacity: password ? 1 : 0.5 }} className="auth-cta"
             disabled={!password || loading}
             onClick={handleSignIn}
           >
@@ -716,14 +727,14 @@ export default function AuthPage() {
             placeholder="e.g. Arjun Sharma"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            style={inputStyle}
-            onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(201,168,76,0.48)")}
-            onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(201,168,76,0.18)")}
+            style={inputStyle} className="auth-input"
+            
+            
             autoFocus
             onKeyDown={(e) => e.key === "Enter" && fullName && goTo("signup-email")}
           />
           <button
-            style={{ ...ctaStyle, opacity: fullName ? 1 : 0.5 }}
+            style={{ ...ctaStyle, opacity: fullName ? 1 : 0.5 }} className="auth-cta"
             disabled={!fullName}
             onClick={() => goTo("signup-email")}
           >
@@ -744,14 +755,14 @@ export default function AuthPage() {
             placeholder="you@university.edu"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={inputStyle}
-            onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(201,168,76,0.48)")}
-            onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(201,168,76,0.18)")}
+            style={inputStyle} className="auth-input"
+            
+            
             autoFocus
             onKeyDown={(e) => e.key === "Enter" && email && goTo("signup-field")}
           />
           <button
-            style={{ ...ctaStyle, opacity: email ? 1 : 0.5 }}
+            style={{ ...ctaStyle, opacity: email ? 1 : 0.5 }} className="auth-cta"
             disabled={!email}
             onClick={() => goTo("signup-field")}
           >
@@ -772,21 +783,9 @@ export default function AuthPage() {
             (field) => (
               <button
                 key={field}
-                style={{
-                  ...optionBtnStyle,
-                  background: fieldOfStudy === field ? "rgba(201,168,76,0.16)" : optionBtnStyle.background,
-                  borderColor: fieldOfStudy === field ? "rgba(201,168,76,0.45)" : "rgba(201,168,76,0.22)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(201,168,76,0.16)";
-                  e.currentTarget.style.borderColor = "rgba(201,168,76,0.45)";
-                }}
-                onMouseLeave={(e) => {
-                  if (fieldOfStudy !== field) {
-                    e.currentTarget.style.background = "rgba(201,168,76,0.07)";
-                    e.currentTarget.style.borderColor = "rgba(201,168,76,0.22)";
-                  }
-                }}
+                style={optionBtnStyle}
+                className={`auth-option ${fieldOfStudy === field ? "selected" : ""}`}
+
                 onClick={() => {
                   setFieldOfStudy(field);
                   setTimeout(() => goTo("signup-password"), 300);
@@ -812,9 +811,9 @@ export default function AuthPage() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ ...inputStyle, paddingRight: 38 }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(201,168,76,0.48)")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(201,168,76,0.18)")}
+              style={{ ...inputStyle, paddingRight: 38 }} className="auth-input"
+              
+              
               autoFocus
             />
             <button
@@ -841,9 +840,9 @@ export default function AuthPage() {
               placeholder="Confirm password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              style={{ ...inputStyle, paddingRight: 38 }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(201,168,76,0.48)")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(201,168,76,0.18)")}
+              style={{ ...inputStyle, paddingRight: 38 }} className="auth-input"
+              
+              
               onKeyDown={(e) => e.key === "Enter" && password && confirmPassword && handleSignUp()}
             />
             <button
