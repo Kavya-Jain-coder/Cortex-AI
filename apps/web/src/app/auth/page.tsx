@@ -41,13 +41,13 @@ const SCENE_BG: Record<SceneId, BgConfig> = {
 // ─── Scene → Card position ──────────────────────────────────────────────────
 const SCENE_POS: Record<SceneId, React.CSSProperties> = {
   splash:           {},
-  welcome:          { bottom: 64, left: 56 },
-  "signin-email":   { top: 52, right: 56 },
-  "signin-password":{ bottom: 64, right: 56 },
-  "signup-name":    { top: 52, left: 56 },
-  "signup-email":   { bottom: 64, left: 56 },
-  "signup-field":   { top: 52, right: 56 },
-  "signup-password":{ bottom: 64, right: 56 },
+  welcome:          { bottom: 80, left: 80 },
+  "signin-email":   { top: 80, right: 80 },
+  "signin-password":{ bottom: 80, right: 80 },
+  "signup-name":    { top: 80, left: 80 },
+  "signup-email":   { bottom: 80, left: 80 },
+  "signup-field":   { top: 80, right: 80 },
+  "signup-password":{ bottom: 80, right: 80 },
   final:            { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
 };
 
@@ -512,7 +512,7 @@ export default function AuthPage() {
 
     // 2800ms: Router push
     const t6 = setTimeout(() => {
-      router.push("/dashboard");
+      router.push("/notes");
     }, 2800);
 
     return () => {
@@ -738,12 +738,13 @@ export default function AuthPage() {
   // ─── Shared styles ────────────────────────────────────────────────────────
   const cardStyle = {
     position: "absolute",
-    background: "rgba(4, 3, 2, 0.75)",
-    border: "none",
-    borderLeft: "1px solid rgba(201, 168, 76, 0.2)",
+    background: "linear-gradient(135deg, rgba(12, 10, 8, 0.85) 0%, rgba(6, 5, 4, 0.90) 100%)",
+    border: "1px solid rgba(201, 168, 76, 0.12)",
+    borderLeft: "3px solid rgba(201, 168, 76, 0.7)",
     borderRadius: 0,
-    padding: "32px 36px",
-    width: 290,
+    padding: "40px 44px",
+    width: 390,
+    boxShadow: "0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 30px rgba(201, 168, 76, 0.03)",
     backdropFilter: "blur(12px)",
     WebkitBackdropFilter: "blur(12px)",
     zIndex: 20,
@@ -1197,6 +1198,7 @@ export default function AuthPage() {
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "welcome" && (
         <div style={cardStyle} className={classNameForCard(cardAnimClass)}>
+          <CardCorners />
           <div style={labelStyle}>WELCOME</div>
           <div style={questionStyle}>Have you used Cortex before?</div>
           <button
@@ -1213,6 +1215,7 @@ export default function AuthPage() {
           >
             No — I&apos;m new here
           </button>
+          <CardFooter />
         </div>
       )}
 
@@ -1221,6 +1224,7 @@ export default function AuthPage() {
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signin-email" && (
         <div style={cardStyle} className={classNameForCard(cardAnimClass)}>
+          <CardCorners />
           <div style={labelStyle}>{SCENE_LABEL["signin-email"]}</div>
           <div style={questionStyle}>What&apos;s your email?</div>
           <input
@@ -1241,6 +1245,7 @@ export default function AuthPage() {
           >
             Continue →
           </button>
+          <CardFooter />
         </div>
       )}
 
@@ -1249,6 +1254,7 @@ export default function AuthPage() {
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signin-password" && (
         <div style={cardStyle} className={classNameForCard(cardAnimClass)}>
+          <CardCorners />
           <div style={labelStyle}>{SCENE_LABEL["signin-password"]}</div>
           <div style={questionStyle}>And your password?</div>
           <div style={{ position: "relative", marginBottom: 6 }}>
@@ -1296,6 +1302,7 @@ export default function AuthPage() {
           >
             {loading ? "Signing in..." : "Enter Cortex →"}
           </button>
+          <CardFooter />
         </div>
       )}
 
@@ -1304,6 +1311,7 @@ export default function AuthPage() {
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signup-name" && (
         <div style={cardStyle} className={classNameForCard(cardAnimClass)}>
+          <CardCorners />
           <div style={labelStyle}>{SCENE_LABEL["signup-name"]}</div>
           <div style={questionStyle}>What should we call you?</div>
           <div style={subtextStyle}>This is how you&apos;ll appear in your workspace.</div>
@@ -1325,6 +1333,7 @@ export default function AuthPage() {
           >
             Continue →
           </button>
+          <CardFooter />
         </div>
       )}
 
@@ -1333,6 +1342,7 @@ export default function AuthPage() {
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signup-email" && (
         <div style={cardStyle} className={classNameForCard(cardAnimClass)}>
+          <CardCorners />
           <div style={labelStyle}>{SCENE_LABEL["signup-email"]}</div>
           <div style={questionStyle}>What&apos;s your email address?</div>
           <input
@@ -1353,6 +1363,7 @@ export default function AuthPage() {
           >
             Continue →
           </button>
+          <CardFooter />
         </div>
       )}
 
@@ -1361,6 +1372,7 @@ export default function AuthPage() {
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signup-field" && (
         <div style={cardStyle} className={classNameForCard(cardAnimClass)}>
+          <CardCorners />
           <div style={labelStyle}>{SCENE_LABEL["signup-field"]}</div>
           <div style={questionStyle}>What are you studying?</div>
           <div style={subtextStyle}>We&apos;ll personalize your workspace.</div>
@@ -1379,6 +1391,7 @@ export default function AuthPage() {
               </button>
             )
           )}
+          <CardFooter />
         </div>
       )}
 
@@ -1387,6 +1400,7 @@ export default function AuthPage() {
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signup-password" && (
         <div style={cardStyle} className={classNameForCard(cardAnimClass)}>
+          <CardCorners />
           <div style={labelStyle}>{SCENE_LABEL["signup-password"]}</div>
           <div style={questionStyle}>Set a strong password.</div>
           <div style={{ position: "relative", marginBottom: 8 }}>
@@ -1453,6 +1467,7 @@ export default function AuthPage() {
           >
             {loading ? "Creating..." : "Create my workspace →"}
           </button>
+          <CardFooter />
         </div>
       )}
 
@@ -1464,10 +1479,11 @@ export default function AuthPage() {
           style={{
             ...cardStyle,
             textAlign: "center",
-            width: 260,
+            width: 320,
           }}
           className={classNameForCard(cardAnimClass)}
         >
+          <CardCorners />
           <AnimatedCheckmark />
           <div
             style={{
@@ -1513,4 +1529,49 @@ export default function AuthPage() {
 // ─── Class name helper ──────────────────────────────────────────────────────
 function classNameForCard(animClass: string) {
   return `auth-card ${animClass}`;
+}
+
+// ─── Technical Card HUD details ──────────────────────────────────────────────
+function CardCorners() {
+  const cornerStyle = {
+    position: "absolute" as const,
+    width: 8,
+    height: 8,
+    borderColor: "rgba(201, 168, 76, 0.4)",
+    borderStyle: "solid",
+    pointerEvents: "none" as const,
+  };
+  return (
+    <>
+      <div style={{ ...cornerStyle, top: 0, left: 0, borderTopWidth: 2, borderLeftWidth: 2 }} />
+      <div style={{ ...cornerStyle, top: 0, right: 0, borderTopWidth: 2, borderRightWidth: 2 }} />
+      <div style={{ ...cornerStyle, bottom: 0, left: 0, borderBottomWidth: 2, borderLeftWidth: 2 }} />
+      <div style={{ ...cornerStyle, bottom: 0, right: 0, borderBottomWidth: 2, borderRightWidth: 2 }} />
+    </>
+  );
+}
+
+function CardFooter() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginTop: 24,
+        opacity: 0.35,
+        fontSize: 8,
+        fontFamily: "monospace, Courier, monospace",
+        letterSpacing: "0.12em",
+        color: "rgba(201, 168, 76, 0.95)",
+        textTransform: "uppercase" as const,
+        borderTop: "1px dashed rgba(201, 168, 76, 0.15)",
+        paddingTop: 12,
+        pointerEvents: "none" as const,
+      }}
+    >
+      <span>CORTEX // SECURE_AUTH</span>
+      <span>SYS_V1.0.5</span>
+    </div>
+  );
 }
