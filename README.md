@@ -160,9 +160,3 @@ Cortex-AI/
 │
 └── docs/                  # Additional Documentation
 ```
-
----
-
-<div align="center">
-  <p>Built with ❤️ for learners everywhere.</p>
-</div>
