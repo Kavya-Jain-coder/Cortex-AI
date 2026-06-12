@@ -536,17 +536,23 @@ export default function AuthPage() {
             top: 24,
             left: 24,
             zIndex: 30,
-            background: "none",
-            border: "none",
-            color: "rgba(201,168,76,0.45)",
+            background: "rgba(6, 5, 4, 0.4)",
+            backdropFilter: "blur(4px)",
+            border: "1px solid rgba(201,168,76,0.15)",
+            borderRadius: "6px",
+            color: "#c9a84c",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
-            gap: 4,
+            gap: 6,
+            padding: "6px 12px",
             fontSize: 12,
+            fontWeight: 500,
             opacity: sceneVisible ? 1 : 0,
-            transition: "opacity 400ms ease",
+            transition: "opacity 400ms ease, background 200ms ease",
           }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(6, 5, 4, 0.7)")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(6, 5, 4, 0.4)")}
         >
           <ArrowLeft size={14} />
           Back
@@ -558,11 +564,16 @@ export default function AuthPage() {
         <div
           style={{
             position: "absolute",
-            top: 28,
-            right: 28,
+            top: 24,
+            right: 24,
             zIndex: 30,
+            background: "rgba(6, 5, 4, 0.4)",
+            backdropFilter: "blur(4px)",
+            border: "1px solid rgba(201,168,76,0.15)",
+            borderRadius: "6px",
+            padding: "6px 12px",
             fontSize: 10,
-            color: "rgba(201,168,76,0.3)",
+            color: "rgba(201,168,76,0.8)",
             letterSpacing: "0.1em",
             opacity: sceneVisible ? 1 : 0,
             transition: "opacity 400ms ease",

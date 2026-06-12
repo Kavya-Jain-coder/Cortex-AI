@@ -41,7 +41,7 @@ export function AppNav() {
 
   return (
     <header className="flex h-14 shrink-0 items-center border-b border-border/80 bg-card/95 px-4 shadow-[0_1px_0_hsl(0_0%_100%/0.04),0_18px_60px_hsl(0_0%_0%/0.28)] backdrop-blur">
-      <Link href="/notes" className="mr-4 flex items-center">
+      <Link href="/notes" className="mr-4 flex items-center shrink-0">
         <Image
           src="/images/logo-transparent.png"
           alt="Cortex Logo"
@@ -53,7 +53,7 @@ export function AppNav() {
           Engineering
         </span>
       </Link>
-      <nav className="flex min-w-0 items-center gap-1 overflow-x-auto">
+      <nav className="flex min-w-0 items-center gap-1 overflow-x-auto pb-1 md:pb-0 hide-scrollbar">
         {navItems.map((item) => {
           const active = pathname === item.href || pathname?.startsWith(`${item.href}/`);
           const Icon = item.icon;
@@ -63,12 +63,12 @@ export function AppNav() {
                 <Link
                   href={item.href}
                   className={cn(
-                    "flex h-9 shrink-0 items-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground",
+                    "flex h-9 shrink-0 items-center gap-2 rounded-md px-2 md:px-3 text-sm text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground",
                     active && "border border-primary/25 bg-accent font-semibold text-accent-foreground shadow-[inset_0_1px_0_hsl(0_0%_100%/0.04)]"
                   )}
                 >
                   <Icon className="h-4 w-4" />
-                  <span>{item.label}</span>
+                  <span className="hidden md:inline-block">{item.label}</span>
                 </Link>
               </TooltipTrigger>
               <TooltipContent side="bottom" sideOffset={8}>
