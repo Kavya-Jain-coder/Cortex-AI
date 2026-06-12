@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
-const PUBLIC_PATHS = ["/auth/login", "/auth/signup", "/auth/reset-password", "/auth/callback", "/auth/update-password"];
+const PUBLIC_PATHS = ["/auth", "/auth/login", "/auth/signup", "/auth/reset-password", "/auth/callback", "/auth/update-password"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -35,7 +35,7 @@ export async function updateSession(request: NextRequest) {
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
-    url.pathname = "/auth/login";
+    url.pathname = "/auth";
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }

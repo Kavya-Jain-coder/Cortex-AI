@@ -35,7 +35,7 @@ export function AppNav() {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    router.replace("/auth/login" as "/auth/login");
+    router.replace("/auth");
     router.refresh();
   };
 
