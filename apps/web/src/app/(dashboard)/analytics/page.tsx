@@ -32,14 +32,34 @@ export default function AnalyticsPage() {
               </div>
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data.weeklyActivity?.length ? data.weeklyActivity : Array.from({ length: 7 }).map((_, i) => {
-                    const d = new Date();
-                    d.setDate(d.getDate() - (6 - i));
-                    return { date: d.toISOString().split('T')[0], minutes: 0 };
-                  })}>
+                  <BarChart 
+                    data={data.weeklyActivity?.length ? data.weeklyActivity : Array.from({ length: 7 }).map((_, i) => {
+                      const d = new Date();
+                      d.setDate(d.getDate() - (6 - i));
+                      return { date: d.toISOString().split('T')[0], minutes: 0 };
+                    })}
+                    margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
-                    <XAxis dataKey="date" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                    <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+                    <XAxis 
+                      dataKey="date" 
+                      tick={{ fontSize: 11 }} 
+                      tickLine={false} 
+                      axisLine={false}
+                      tickFormatter={(value) => {
+                        const parts = value.split("-");
+                        if (parts.length === 3) {
+                          const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                          const monthIdx = parseInt(parts[1], 10) - 1;
+                          const day = parseInt(parts[2], 10);
+                          if (monthIdx >= 0 && monthIdx < 12) {
+                            return `${months[monthIdx]} ${day}`;
+                          }
+                        }
+                        return value;
+                      }}
+                    />
+                    <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} width={35} />
                     <Tooltip 
                       cursor={{ fill: 'hsl(var(--muted))' }}
                       contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}

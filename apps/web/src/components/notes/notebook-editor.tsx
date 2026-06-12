@@ -69,7 +69,7 @@ export function NotebookEditor({ blocks, onChange }: NotebookEditorProps) {
               {/* Delete Button */}
               <button
                 onClick={() => deleteBlock(block.id)}
-                className="absolute right-2 top-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded bg-destructive/10 text-destructive hover:bg-destructive/20"
+                className="absolute right-2 top-2 z-10 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-1.5 rounded bg-destructive/10 text-destructive hover:bg-destructive/20"
                 title="Delete Block"
               >
                 <Trash2 className="h-4 w-4" />
@@ -184,9 +184,23 @@ function TextBlock({ content, onChange }: { content: string, onChange: (c: strin
   return (
     <div 
       onDoubleClick={() => setIsEditing(true)}
-      className="prose prose-invert max-w-none cursor-text p-2 min-h-[60px]"
+      className="prose prose-invert max-w-none cursor-text p-2 min-h-[60px] relative group/text"
     >
-      <div className="text-xs text-muted-foreground/50 mb-1 font-mono tracking-widest select-none">Double-click to edit text</div>
+      <div className="absolute right-10 top-2 z-10 opacity-100 sm:opacity-0 sm:group-hover/text:opacity-100 transition-opacity">
+        <button
+          onClick={() => setIsEditing(true)}
+          className="p-1.5 rounded bg-primary/10 text-primary hover:bg-primary/20"
+          title="Edit Block"
+        >
+          <SquarePen className="h-4 w-4" />
+        </button>
+      </div>
+      <div 
+        onClick={() => setIsEditing(true)}
+        className="text-xs text-muted-foreground/50 mb-1 font-mono tracking-widest select-none cursor-pointer hover:text-primary transition-colors inline-block"
+      >
+        Double-click to edit text
+      </div>
       <div data-color-mode="dark">
         <MarkdownViewer 
           source={content || "*Empty text block*"} 
@@ -233,7 +247,19 @@ function MathBlock({ content, onChange }: { content: string, onChange: (c: strin
       onDoubleClick={() => setIsEditing(true)}
       className="cursor-pointer p-4 min-h-[60px] rounded-md border border-transparent transition-colors flex items-center justify-center bg-muted/5 group/math relative"
     >
-      <div className="absolute top-2 left-2 opacity-0 group-hover/math:opacity-100 transition-opacity">
+      <div className="absolute top-2 right-10 z-10 opacity-100 sm:opacity-0 sm:group-hover/math:opacity-100 transition-opacity">
+        <button
+          onClick={() => setIsEditing(true)}
+          className="p-1.5 rounded bg-primary/10 text-primary hover:bg-primary/20"
+          title="Edit Block"
+        >
+          <SquarePen className="h-4 w-4" />
+        </button>
+      </div>
+      <div 
+        onClick={() => setIsEditing(true)}
+        className="absolute top-2 left-2 opacity-100 sm:opacity-0 sm:group-hover/math:opacity-100 transition-opacity cursor-pointer hover:text-primary transition-colors"
+      >
         <span className="text-[10px] uppercase tracking-wider text-muted-foreground/50 font-mono">Double-click to edit Math</span>
       </div>
       <div data-color-mode="dark" className="w-full text-center overflow-x-auto overflow-y-hidden py-4">

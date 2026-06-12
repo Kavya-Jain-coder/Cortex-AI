@@ -61,7 +61,7 @@ export function NotesSidebar() {
       <Button
         variant="ghost"
         size="icon"
-        className="absolute -right-3.5 top-5 z-10 h-7 w-7 rounded-full border border-primary/30 bg-background shadow-sm"
+        className="absolute -right-3.5 top-5 z-10 h-7 w-7 rounded-full border border-primary/30 bg-background shadow-sm hidden md:flex"
         onClick={toggleSidebar}
         aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
       >

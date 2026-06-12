@@ -202,10 +202,10 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
                   type="button"
                   onClick={handleExport}
                   variant="outline"
-                  className="gap-2"
+                  className="gap-2 px-2.5 sm:px-4"
                 >
                   <Download className="h-4 w-4" />
-                  Export Markdown
+                  <span className="hidden sm:inline">Export Markdown</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="bottom" sideOffset={8}>
@@ -220,10 +220,10 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
                 type="button"
                 onClick={save}
                 disabled={!dirty || updateNote.isPending}
-                className={cn("gap-2", dirty && "glow-golden")}
+                className={cn("gap-2 px-2.5 sm:px-4", dirty && "glow-golden")}
               >
                 {updateNote.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                Save
+                <span className="hidden sm:inline">Save</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom" sideOffset={8}>
@@ -316,11 +316,13 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
       {/* Collapsible AI Tutor Panel */}
       <div
         className={cn(
-          "shrink-0 overflow-hidden border-l border-border transition-all duration-300 ease-in-out",
-          tutorOpen ? "w-[380px]" : "w-0 border-l-0"
+          "fixed inset-y-0 right-0 z-40 bg-background transition-all duration-300 ease-in-out md:static md:z-0 md:shrink-0 md:overflow-hidden",
+          tutorOpen 
+            ? "w-full border-l border-border translate-x-0 sm:w-[380px] md:w-[380px]" 
+            : "w-0 border-l-0 translate-x-full md:w-0 md:translate-x-0"
         )}
       >
-        <div className="relative h-full w-[380px]">
+        <div className="relative h-full w-full sm:w-[380px] md:w-[380px]">
           {/* Close button inside the panel */}
           <button
             type="button"

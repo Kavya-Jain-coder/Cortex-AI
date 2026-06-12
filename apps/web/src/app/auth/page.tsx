@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -77,6 +77,76 @@ const SCENE_DOT: Record<SceneId, number> = {
   final: -1,
 };
 
+// ─── Card Directions Configuration ──────────────────────────────────────────
+const CARD_ANIMATIONS: Record<SceneId, [string | null, string]> = {
+  splash:            [null, "center"],
+  welcome:           ["bottom-left", "bottom-left"],
+  "signin-email":    ["bottom-left→top-right", "top-right"],
+  "signin-password": ["top-right→bottom-right", "bottom-right"],
+  "signup-name":     ["bottom-right→top-left", "top-left"],
+  "signup-email":    ["top-left→bottom-left", "bottom-left"],
+  "signup-field":    ["bottom-left→top-right", "top-right"],
+  "signup-password": ["top-right→bottom-right", "bottom-right"],
+  final:             ["bottom-right→center", "center"],
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Helper functions for animations
+// ═══════════════════════════════════════════════════════════════════════════════
+function createRipple(x: number, y: number, prefersReducedMotion: boolean) {
+  if (prefersReducedMotion) return;
+  const ripple = document.createElement("div");
+  ripple.style.cssText = `
+    position: fixed;
+    left: ${x}px;
+    top: ${y}px;
+    width: 0; height: 0;
+    border-radius: 50%;
+    background: transparent;
+    border: 1.5px solid rgba(201,168,76,0.6);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 100;
+  `;
+  document.body.appendChild(ripple);
+  ripple
+    .animate(
+      [
+        { width: "0px", height: "0px", opacity: 0.8, borderColor: "rgba(201,168,76,0.6)" },
+        { width: "200px", height: "200px", opacity: 0, borderColor: "rgba(201,168,76,0)" },
+      ],
+      { duration: 600, easing: "cubic-bezier(0.4, 0, 0.2, 1)" }
+    )
+    .onfinish = () => ripple.remove();
+}
+
+function getDirectionOffset(direction: string | null, distance: number) {
+  if (!direction) return { x: 0, y: 0 };
+  switch (direction) {
+    case "bottom-left":
+      return { x: -distance, y: distance };
+    case "top-right":
+      return { x: distance, y: -distance };
+    case "bottom-right":
+      return { x: distance, y: distance };
+    case "top-left":
+      return { x: -distance, y: -distance };
+    case "center":
+      return { x: 0, y: distance };
+    default:
+      return { x: 0, y: 0 };
+  }
+}
+
+function getExitDirection(dir: string | null, isForward: boolean): string | null {
+  if (!dir) return null;
+  if (dir.includes("→")) {
+    const parts = dir.split("→");
+    return (isForward ? parts[1] : parts[0]) ?? null;
+  }
+  return dir;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Particle Canvas
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -90,13 +160,15 @@ function ParticleCanvas() {
     if (!ctx) return;
 
     let animId: number;
-    const nodes: { x: number; y: number; vx: number; vy: number; r: number }[] = [];
+    const nodes: { x: number; y: number; vx: number; vy: number; r: number; alpha: number; dying: boolean }[] = [];
     const NODE_COUNT = 60;
     const MAX_DIST = 110;
 
     function resize() {
-      canvas!.width = window.innerWidth;
-      canvas!.height = window.innerHeight;
+      if (canvas) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
     }
     resize();
     window.addEventListener("resize", resize);
@@ -108,18 +180,75 @@ function ParticleCanvas() {
         vx: (Math.random() - 0.5) * 0.6,
         vy: (Math.random() - 0.5) * 0.6,
         r: 0.5 + Math.random() * 1.6,
+        alpha: 0.5,
+        dying: false,
       });
     }
 
+    function resetNodes() {
+      if (!canvas) return;
+      nodes.length = 0;
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      for (let i = 0; i < NODE_COUNT; i++) {
+        nodes.push({
+          x: centerX + (Math.random() - 0.5) * 10,
+          y: centerY + (Math.random() - 0.5) * 10,
+          vx: (Math.random() - 0.5) * 0.6,
+          vy: (Math.random() - 0.5) * 0.6,
+          r: 0.5 + Math.random() * 1.6,
+          alpha: 0.5,
+          dying: false,
+        });
+      }
+    }
+
+    function triggerParticleBurst(originX: number, originY: number) {
+      const prefersMotion = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!prefersMotion) return;
+
+      const isMobileDevice = window.innerWidth < 768;
+      if (isMobileDevice) return; // skip particle burst under 768px
+
+      nodes.forEach((node) => {
+        const dx = node.x - originX;
+        const dy = node.y - originY;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        node.vx = (dx / dist) * 18 + (Math.random() - 0.5) * 8;
+        node.vy = (dy / dist) * 18 + (Math.random() - 0.5) * 8;
+        node.dying = true;
+        node.alpha = 1;
+      });
+
+      if (canvas) {
+        canvas.style.willChange = "transform";
+      }
+
+      setTimeout(() => {
+        if (canvas) {
+          canvas.style.willChange = "auto";
+        }
+        resetNodes();
+      }, 800);
+    }
+
+    (window as any).triggerParticleBurst = triggerParticleBurst;
+
     function draw() {
-      ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
+      if (!canvas || !ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Update positions
       for (const n of nodes) {
         n.x += n.vx;
         n.y += n.vy;
-        if (n.x < 0 || n.x > canvas!.width) n.vx *= -1;
-        if (n.y < 0 || n.y > canvas!.height) n.vy *= -1;
+        if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+        if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+
+        if (n.dying) {
+          n.alpha -= 0.035;
+          if (n.alpha < 0) n.alpha = 0;
+        }
       }
 
       // Draw lines
@@ -127,27 +256,29 @@ function ParticleCanvas() {
         for (let j = i + 1; j < nodes.length; j++) {
           const a = nodes[i]!;
           const b = nodes[j]!;
+          if (a.dying || b.dying) continue;
+
           const dx = a.x - b.x;
           const dy = a.y - b.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < MAX_DIST) {
             const alpha = (1 - dist / MAX_DIST) * 0.15;
-            ctx!.strokeStyle = `rgba(201,168,76,${alpha})`;
-            ctx!.lineWidth = 0.5;
-            ctx!.beginPath();
-            ctx!.moveTo(a.x, a.y);
-            ctx!.lineTo(b.x, b.y);
-            ctx!.stroke();
+            ctx.strokeStyle = `rgba(201,168,76,${alpha})`;
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
           }
         }
       }
 
       // Draw nodes
       for (const n of nodes) {
-        ctx!.fillStyle = "rgba(201,168,76,0.5)";
-        ctx!.beginPath();
-        ctx!.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-        ctx!.fill();
+        ctx.fillStyle = `rgba(201,168,76,${n.dying ? n.alpha : 0.5})`;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       animId = requestAnimationFrame(draw);
@@ -158,6 +289,7 @@ function ParticleCanvas() {
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", resize);
+      delete (window as any).triggerParticleBurst;
     };
   }, []);
 
@@ -260,47 +392,262 @@ export default function AuthPage() {
   const [showConfirmPw, setShowConfirmPw] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // ─── Splash auto-advance ─────────────────────────────────────────────────
-  const [splashLogo, setSplashLogo] = useState(false);
-  const [splashTagline, setSplashTagline] = useState(false);
+  // ─── Splash loading entrance sequence state ──────────────────────────────
+  const [canvasVisible, setCanvasVisible] = useState(false);
+  const [bgVisible, setBgVisible] = useState(false);
+  const [scannerActive, setScannerActive] = useState(false);
+  const [logoVisible, setLogoVisible] = useState(false);
+  const [taglineVisible, setTaglineVisible] = useState(false);
 
+  // ─── Success Scene finale state ──────────────────────────────────────────
+  const [successTitleVisible, setSuccessTitleVisible] = useState(false);
+  const [successSubVisible, setSuccessSubVisible] = useState(false);
+  const [successZoom, setSuccessZoom] = useState(false);
+  const [successBlackout, setSuccessBlackout] = useState(false);
+
+  // ─── Transition Animation State ──────────────────────────────────────────
+  const [bgWarpState, setBgWarpState] = useState<"none" | "leaving" | "entering" | "on">("none");
+  const [prevBgSrc, setPrevBgSrc] = useState<string>("");
+  const [cardState, setCardState] = useState<"entered" | "exiting" | "entering">("entered");
+  const [isBackTransition, setIsBackTransition] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  const vortexRef = useRef<HTMLDivElement>(null);
+  const lastClickRef = useRef<{ x: number; y: number } | null>(null);
+
+  // ─── Detect Screen Size ──────────────────────────────────────────────────
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // ─── Track Click Coordinates ─────────────────────────────────────────────
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      lastClickRef.current = { x: e.clientX, y: e.clientY };
+    };
+    window.addEventListener("click", handleClick, true);
+    return () => window.removeEventListener("click", handleClick, true);
+  }, []);
+
+  // ─── Splash auto-advance ─────────────────────────────────────────────────
   useEffect(() => {
     if (scene !== "splash") return;
-    const t1 = setTimeout(() => setSplashLogo(true), 200);
-    const t2 = setTimeout(() => setSplashTagline(true), 700);
-    const t3 = setTimeout(() => goTo("welcome"), 2800);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    
+    // Reset splash animation states
+    setCanvasVisible(false);
+    setBgVisible(false);
+    setScannerActive(false);
+    setLogoVisible(false);
+    setTaglineVisible(false);
+
+    const t1 = setTimeout(() => setCanvasVisible(true), 200);
+    const t2 = setTimeout(() => setBgVisible(true), 600);
+    const t3 = setTimeout(() => setScannerActive(true), 800);
+    const t4 = setTimeout(() => setLogoVisible(true), 1400);
+    const t5 = setTimeout(() => setTaglineVisible(true), 2200);
+    const t6 = setTimeout(() => goTo("welcome"), 2800);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      clearTimeout(t5);
+      clearTimeout(t6);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene]);
 
-  // ─── Final auto-redirect ─────────────────────────────────────────────────
+  // ─── Final success auto-redirect sequence ────────────────────────────────
   useEffect(() => {
     if (scene !== "final") return;
-    const t = setTimeout(() => router.push("/notes"), 1800);
-    return () => clearTimeout(t);
+
+    setSuccessTitleVisible(false);
+    setSuccessSubVisible(false);
+    setSuccessZoom(false);
+    setSuccessBlackout(false);
+
+    const t1 = setTimeout(() => setSuccessTitleVisible(true), 800);
+    const t2 = setTimeout(() => setSuccessSubVisible(true), 1200);
+    const t3 = setTimeout(() => setSuccessZoom(true), 1800);
+
+    // 2200ms: Inward vortex collapse
+    const t4 = setTimeout(() => {
+      const vortexEl = vortexRef.current;
+      if (vortexEl) {
+        vortexEl.style.setProperty("--vx", "50%");
+        vortexEl.style.setProperty("--vy", "50%");
+        vortexEl.style.willChange = "transform, opacity, filter";
+
+        const prefersMotion = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (prefersMotion) {
+          const isMobileDevice = window.innerWidth < 768;
+          let keyframes = [
+            { opacity: 0, transform: "scale(2.5)", filter: "blur(20px)" },
+            { opacity: 0.9, transform: "scale(1)", filter: "blur(8px)", offset: 0.5 },
+            { opacity: 1, transform: "scale(0)", filter: "blur(0px)" },
+          ];
+          if (isMobileDevice) {
+            keyframes = [
+              { opacity: 0, transform: "scale(2.5)", filter: "none" },
+              { opacity: 0.9, transform: "scale(1)", filter: "none", offset: 0.5 },
+              { opacity: 1, transform: "scale(0)", filter: "none" },
+            ];
+          }
+
+          vortexEl.animate(keyframes, {
+            duration: 800,
+            easing: "cubic-bezier(0.55, 0, 1, 0.45)",
+            fill: "forwards",
+          });
+        }
+      }
+    }, 2200);
+
+    // 2600ms: Pure black screen
+    const t5 = setTimeout(() => setSuccessBlackout(true), 2600);
+
+    // 2800ms: Router push
+    const t6 = setTimeout(() => {
+      router.push("/dashboard");
+    }, 2800);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      clearTimeout(t5);
+      clearTimeout(t6);
+    };
   }, [scene, router]);
 
   // ─── Navigation ───────────────────────────────────────────────────────────
   const goTo = useCallback((next: SceneId) => {
     if (isTransitioning) return;
     setIsTransitioning(true);
-    setSceneVisible(false); // fade out current
+    setIsBackTransition(false); // Reset to ensure forward animations run
 
+    // Determine target origin point
+    let clickX = lastClickRef.current?.x;
+    let clickY = lastClickRef.current?.y;
+    lastClickRef.current = null;
+
+    if (clickX === undefined || clickY === undefined) {
+      const cardEl = document.querySelector(".auth-card");
+      if (cardEl) {
+        const rect = cardEl.getBoundingClientRect();
+        clickX = rect.left + rect.width / 2;
+        clickY = rect.top + rect.height / 2;
+      } else {
+        clickX = window.innerWidth / 2;
+        clickY = window.innerHeight / 2;
+      }
+    }
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) {
+      // Simple 300ms opacity crossfade only
+      setSceneVisible(false);
+      setTimeout(() => {
+        setHistory((h) => [...h, scene]);
+        setScene(next);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => setSceneVisible(true));
+        });
+        setIsTransitioning(false);
+      }, 300);
+      return;
+    }
+
+    // 0ms: Spawn click gold ripple
+    createRipple(clickX, clickY, prefersReducedMotion);
+
+    // 80ms: Particle burst, Card exit state, Vortex starts
+    setTimeout(() => {
+      // Outward Particle Burst
+      if ((window as any).triggerParticleBurst) {
+        (window as any).triggerParticleBurst(clickX, clickY);
+      }
+
+      // Card exit state
+      setCardState("exiting");
+
+      // Vortex overlay
+      const vortexEl = vortexRef.current;
+      if (vortexEl) {
+        const vxPercent = (clickX! / window.innerWidth) * 100;
+        const vyPercent = (clickY! / window.innerHeight) * 100;
+        vortexEl.style.setProperty("--vx", `${vxPercent}%`);
+        vortexEl.style.setProperty("--vy", `${vyPercent}%`);
+        vortexEl.style.willChange = "transform, opacity, filter";
+
+        const isMobileDevice = window.innerWidth < 768;
+        let keyframes = [
+          { opacity: 0, transform: "scale(0)", filter: "blur(0px)" },
+          { opacity: 0.6, transform: "scale(1)", filter: "blur(8px)", offset: 0.4 },
+          { opacity: 0.95, transform: "scale(1.5)", filter: "blur(22px)", offset: 0.6 },
+          { opacity: 0, transform: "scale(2.5)", filter: "blur(0px)" },
+        ];
+        if (isMobileDevice) {
+          keyframes = [
+            { opacity: 0, transform: "scale(0)", filter: "none" },
+            { opacity: 0.6, transform: "scale(1)", filter: "none", offset: 0.4 },
+            { opacity: 0.95, transform: "scale(1.5)", filter: "none", offset: 0.6 },
+            { opacity: 0, transform: "scale(2.5)", filter: "none" },
+          ];
+        }
+
+        const anim = vortexEl.animate(keyframes, {
+          duration: 900,
+          easing: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+          fill: "forwards",
+        });
+        anim.onfinish = () => {
+          vortexEl.style.willChange = "auto";
+        };
+      }
+    }, 80);
+
+    // 100ms: Outgoing background leaves (zooms & blurs)
+    setTimeout(() => {
+      setPrevBgSrc(SCENE_BG[scene].src);
+      setBgWarpState("leaving");
+    }, 100);
+
+    // 380ms: Card is invisible, update scene index and prepare new states
     setTimeout(() => {
       setHistory((h) => [...h, scene]);
       setScene(next);
-      // Small delay then fade in
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setSceneVisible(true));
-      });
+      setCardState("entering");
+      setBgWarpState("entering");
+    }, 380);
+
+    // 480ms: Incoming background sharpens in
+    setTimeout(() => {
+      setBgWarpState("on");
+    }, 480);
+
+    // 500ms: New card begins entrance animation
+    setTimeout(() => {
+      setCardState("entered");
+    }, 500);
+
+    // 980ms: Transition complete
+    setTimeout(() => {
       setIsTransitioning(false);
-    }, 350);
+    }, 980);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scene, isTransitioning]);
+  }, [scene, isTransitioning, isMobile]);
 
   const goBack = useCallback(() => {
     if (isTransitioning || history.length === 0) return;
     setIsTransitioning(true);
+    setIsBackTransition(true); // Enable clean reverse fade
     setSceneVisible(false);
 
     setTimeout(() => {
@@ -310,8 +657,12 @@ export default function AuthPage() {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => setSceneVisible(true));
       });
-      setIsTransitioning(false);
-    }, 350);
+      // Clear back state after fade is complete
+      setTimeout(() => {
+        setIsBackTransition(false);
+        setIsTransitioning(false);
+      }, 400);
+    }, 400);
   }, [history, isTransitioning]);
 
   // ─── Auth handlers ────────────────────────────────────────────────────────
@@ -362,6 +713,28 @@ export default function AuthPage() {
   const dotIndex = SCENE_DOT[scene];
   const stepLabel = SCENE_LABEL[scene];
 
+  // ─── Dynamic Card Custom Offsets ──────────────────────────────────────────
+  const distance = isMobile ? 30 : 60;
+  const animConfig = CARD_ANIMATIONS[scene];
+  const exitDir = animConfig ? animConfig[0] : null;
+  const enterDir = animConfig ? animConfig[1] : "center";
+
+  let cardStyleVariables = {} as React.CSSProperties;
+  if (cardState === "exiting") {
+    const dir = getExitDirection(exitDir, true);
+    const offsets = getDirectionOffset(dir, distance);
+    cardStyleVariables = {
+      "--exit-x": `${offsets.x}px`,
+      "--exit-y": `${offsets.y}px`,
+    } as React.CSSProperties;
+  } else if (cardState === "entering") {
+    const offsets = getDirectionOffset(enterDir, distance);
+    cardStyleVariables = {
+      "--enter-x": `${offsets.x}px`,
+      "--enter-y": `${offsets.y}px`,
+    } as React.CSSProperties;
+  }
+
   // ─── Shared styles ────────────────────────────────────────────────────────
   const cardStyle = {
     position: "absolute",
@@ -376,8 +749,9 @@ export default function AuthPage() {
     zIndex: 20,
     opacity: sceneVisible ? 1 : 0,
     transform: sceneVisible ? "translateY(0)" : "translateY(12px)",
-    transition: "opacity 700ms ease, transform 700ms ease",
+    transition: isBackTransition ? "opacity 400ms ease" : "opacity 700ms ease, transform 700ms ease",
     "--y-offset": sceneVisible ? "0px" : "12px",
+    ...cardStyleVariables,
     ...SCENE_POS[scene],
   } as React.CSSProperties;
 
@@ -450,10 +824,38 @@ export default function AuthPage() {
     marginBottom: 6,
   };
 
+  // ─── Split tagline character details ──────────────────────────────────────
+  const taglineText = "Engineering OS — Your AI-native study workspace";
+  const splitTagline = useMemo(() => {
+    let index = 0;
+    return taglineText.split(" ").map((word) => {
+      const chars = word.split("").map((char) => {
+        const currentIdx = index;
+        index++;
+        return { char, index: currentIdx };
+      });
+      index++; // space
+      return chars;
+    });
+  }, []);
+
+  const cardAnimClass = isBackTransition
+    ? ""
+    : `card-anim ${cardState} ${scene === "final" ? "centered-card" : "mobile-centered-card"}`;
+
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#060606", overflow: "hidden" }}>
-            <style>{`
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "#060606",
+        overflow: "hidden",
+        transform: successZoom ? "scale(1.15)" : "scale(1)",
+        transition: successZoom ? "transform 800ms ease" : "none",
+      }}
+    >
+      <style>{`
         .auth-input::placeholder {
           color: rgba(240, 232, 216, 0.25);
           font-size: 13px;
@@ -471,6 +873,99 @@ export default function AuthPage() {
           color: #f0e8d8 !important;
           padding-left: 20px !important;
         }
+
+        /* Transition Background Warps */
+        .bg-layer {
+          transition: opacity 1200ms ease, transform 900ms ease, filter 900ms ease;
+        }
+        .bg-layer.leaving {
+          opacity: 0 !important;
+          transform: scale(1.08) !important;
+          filter: blur(12px) !important;
+        }
+        .bg-layer.entering {
+          opacity: 0 !important;
+          transform: scale(1.06) !important;
+          filter: blur(8px) !important;
+        }
+        .bg-layer.entering.on {
+          opacity: 1 !important;
+          transform: scale(1) !important;
+          filter: blur(0px) !important;
+        }
+
+        /* Transition Card Animations with Micro-bounce */
+        .card-anim {
+          transition: opacity 350ms ease, transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+        .card-anim.exiting {
+          opacity: 0 !important;
+          transform: translate(var(--exit-x, 0px), var(--exit-y, 0px)) scale(0.95) !important;
+        }
+        .card-anim.entering {
+          opacity: 0 !important;
+          transform: translate(var(--enter-x, 0px), var(--enter-y, 0px)) scale(0.97) !important;
+        }
+        .card-anim.entered {
+          opacity: 1 !important;
+          transform: translate(0, 0) scale(1) !important;
+        }
+
+        /* Success & Centered Card overrides */
+        .card-anim.centered-card.exiting {
+          transform: translate(calc(-50% + var(--exit-x, 0px)), calc(-50% + var(--exit-y, 0px))) scale(0.95) !important;
+        }
+        .card-anim.centered-card.entering {
+          transform: translate(calc(-50% + var(--enter-x, 0px)), calc(-50% + var(--enter-y, 0px))) scale(0.97) !important;
+        }
+        .card-anim.centered-card.entered {
+          transform: translate(-50%, -50%) scale(1) !important;
+        }
+
+        /* Vortex gold radial energy portal overlay */
+        .vortex-overlay {
+          position: absolute;
+          inset: 0;
+          z-index: 5;
+          pointer-events: none;
+          opacity: 0;
+          transform: scale(0);
+          background: radial-gradient(
+            ellipse at var(--vx, 50%) var(--vy, 50%),
+            rgba(201, 168, 76, 0.4) 0%,
+            rgba(201, 168, 76, 0.15) 25%,
+            rgba(10, 8, 6, 0.8) 55%,
+            rgba(0, 0, 0, 0.95) 100%
+          );
+          transition: none;
+        }
+
+        /* Splash horizontal scanner sweep */
+        .scanner-line {
+          position: absolute;
+          top: 50%;
+          left: -100%;
+          width: 100%;
+          height: 1px;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(201,168,76,0.0) 20%,
+            rgba(201,168,76,0.6) 50%,
+            rgba(201,168,76,0.0) 80%,
+            transparent 100%
+          );
+          animation: scanLine 600ms ease-in-out forwards;
+          z-index: 15;
+        }
+        @keyframes scanLine {
+          0%   { left: -100%; opacity: 0; }
+          10%  { opacity: 1; }
+          90%  { opacity: 1; }
+          100% { left: 100%; opacity: 0; }
+        }
+
+        /* Mobile specific style centerings & performance adjustments */
         @media (max-width: 768px) {
           .auth-card {
             top: 50% !important;
@@ -479,36 +974,78 @@ export default function AuthPage() {
             bottom: auto !important;
             width: calc(100% - 48px) !important;
             max-width: 340px !important;
-            transform: translate(-50%, calc(-50% + var(--y-offset, 0px))) !important;
+          }
+          .mobile-centered-card.exiting {
+            transform: translate(calc(-50% + var(--exit-x, 0px)), calc(-50% + var(--exit-y, 0px))) scale(0.95) !important;
+          }
+          .mobile-centered-card.entering {
+            transform: translate(calc(-50% + var(--enter-x, 0px)), calc(-50% + var(--enter-y, 0px))) scale(0.97) !important;
+          }
+          .mobile-centered-card.entered {
+            transform: translate(-50%, -50%) scale(1) !important;
+          }
+          .bg-layer {
+            filter: none !important;
+            transition: opacity 1200ms ease, transform 900ms ease !important;
+          }
+          .bg-layer.leaving {
+            filter: none !important;
+            transform: scale(1.08) !important;
+          }
+          .bg-layer.entering {
+            filter: none !important;
+            transform: scale(1.06) !important;
+          }
+          .bg-layer.entering.on {
+            filter: none !important;
+            transform: scale(1) !important;
           }
         }
       `}</style>
+
       {/* ── Background layers ────────────────────────────────────────────── */}
-      {uniqueBgs.map((src) => (
-        <div
-          key={src}
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 1,
-            opacity: currentBg.src === src ? currentBg.opacity : 0,
-            transition: "opacity 1200ms ease",
-            pointerEvents: "none",
-          }}
-        >
-          <Image
-            src={src}
-            alt=""
-            fill
-            unoptimized
+      {uniqueBgs.map((src) => {
+        let bgClass = "bg-layer";
+        let opacity = 0;
+
+        if (src === currentBg.src) {
+          if (bgWarpState === "entering") {
+            bgClass += " entering";
+          } else if (bgWarpState === "on" || bgWarpState === "none") {
+            bgClass += " entering on";
+            opacity = currentBg.opacity;
+          }
+        } else if (src === prevBgSrc && bgWarpState === "leaving") {
+          bgClass += " leaving";
+        }
+
+        return (
+          <div
+            key={src}
+            className={bgClass}
             style={{
-              objectFit: "cover",
-              objectPosition: currentBg.src === src ? currentBg.position : "center",
-              transition: "object-position 1200ms ease",
+              position: "absolute",
+              inset: 0,
+              zIndex: 1,
+              opacity: bgVisible ? opacity : 0,
+              transition: bgVisible ? undefined : "opacity 1400ms ease-in",
+              pointerEvents: "none",
             }}
-          />
-        </div>
-      ))}
+          >
+            <Image
+              src={src}
+              alt=""
+              fill
+              unoptimized
+              style={{
+                objectFit: "cover",
+                objectPosition: currentBg.src === src ? currentBg.position : "center",
+                transition: "object-position 1200ms ease",
+              }}
+            />
+          </div>
+        );
+      })}
 
       {/* ── Final scene radial glow bg ───────────────────────────────────── */}
       {scene === "final" && (
@@ -525,7 +1062,13 @@ export default function AuthPage() {
       )}
 
       {/* ── Particle canvas ──────────────────────────────────────────────── */}
-      <ParticleCanvas />
+      {canvasVisible && <ParticleCanvas />}
+
+      {/* ── Vortex radial gold energy portal overlay ─────────────────────── */}
+      <div ref={vortexRef} className="vortex-overlay" />
+
+      {/* ── Horizontal Gold Scanner Sweeper ──────────────────────────────── */}
+      {scannerActive && <div className="scanner-line" />}
 
       {/* ── Back button ───────────────────────────────────────────────────── */}
       {scene !== "splash" && scene !== "final" && (
@@ -608,25 +1151,44 @@ export default function AuthPage() {
             height={60}
             unoptimized
             style={{
-              opacity: splashLogo ? 1 : 0,
-              transform: splashLogo ? "translateY(0)" : "translateY(20px)",
+              opacity: logoVisible ? 1 : 0,
+              transform: logoVisible ? "scale(1)" : "scale(0.8)",
               transition: "opacity 800ms ease, transform 800ms ease",
             }}
           />
-          <p
+          <div
             style={{
               fontFamily: "Georgia, serif",
               fontSize: 15,
               color: "rgba(201,168,76,0.55)",
               marginTop: 16,
               letterSpacing: "0.04em",
-              opacity: splashTagline ? 1 : 0,
-              transform: splashTagline ? "translateY(0)" : "translateY(10px)",
-              transition: "opacity 700ms ease, transform 700ms ease",
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
             }}
           >
-            Engineering OS — Your AI-native study workspace
-          </p>
+            <span style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
+              {splitTagline.map((wordChars, wIdx) => (
+                <span key={wIdx} style={{ display: "inline-flex", marginRight: "0.3em" }}>
+                  {wordChars.map(({ char, index }) => (
+                    <span
+                      key={index}
+                      style={{
+                        opacity: taglineVisible ? 1 : 0,
+                        transform: taglineVisible ? "translateY(0)" : "translateY(8px)",
+                        transition: "opacity 400ms ease, transform 400ms ease",
+                        transitionDelay: `${index * 40}ms`,
+                        display: "inline-block",
+                      }}
+                    >
+                      {char}
+                    </span>
+                  ))}
+                </span>
+              ))}
+            </span>
+          </div>
         </div>
       )}
 
@@ -634,19 +1196,19 @@ export default function AuthPage() {
           SCENE 1 — Welcome
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "welcome" && (
-        <div style={cardStyle} className="auth-card">
+        <div style={cardStyle} className={classNameForCard(cardAnimClass)}>
           <div style={labelStyle}>WELCOME</div>
           <div style={questionStyle}>Have you used Cortex before?</div>
           <button
-            style={optionBtnStyle} className="auth-option"
-
+            style={optionBtnStyle}
+            className="auth-option"
             onClick={() => goTo("signin-email")}
           >
             Yes — sign me in
           </button>
           <button
-            style={optionBtnStyle} className="auth-option"
-
+            style={optionBtnStyle}
+            className="auth-option"
             onClick={() => goTo("signup-name")}
           >
             No — I&apos;m new here
@@ -658,7 +1220,7 @@ export default function AuthPage() {
           SCENE 2A — Sign in: Email
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signin-email" && (
-        <div style={cardStyle} className="auth-card">
+        <div style={cardStyle} className={classNameForCard(cardAnimClass)}>
           <div style={labelStyle}>{SCENE_LABEL["signin-email"]}</div>
           <div style={questionStyle}>What&apos;s your email?</div>
           <input
@@ -666,14 +1228,14 @@ export default function AuthPage() {
             placeholder="you@university.edu"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={inputStyle} className="auth-input"
-            
-            
+            style={inputStyle}
+            className="auth-input"
             autoFocus
             onKeyDown={(e) => e.key === "Enter" && email && goTo("signin-password")}
           />
           <button
-            style={{ ...ctaStyle, opacity: email ? 1 : 0.5 }} className="auth-cta"
+            style={{ ...ctaStyle, opacity: email ? 1 : 0.5 }}
+            className="auth-cta"
             disabled={!email}
             onClick={() => goTo("signin-password")}
           >
@@ -686,7 +1248,7 @@ export default function AuthPage() {
           SCENE 3A — Sign in: Password
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signin-password" && (
-        <div style={cardStyle} className="auth-card">
+        <div style={cardStyle} className={classNameForCard(cardAnimClass)}>
           <div style={labelStyle}>{SCENE_LABEL["signin-password"]}</div>
           <div style={questionStyle}>And your password?</div>
           <div style={{ position: "relative", marginBottom: 6 }}>
@@ -695,9 +1257,8 @@ export default function AuthPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ ...inputStyle, paddingRight: 38 }} className="auth-input"
-              
-              
+              style={{ ...inputStyle, paddingRight: 38 }}
+              className="auth-input"
               autoFocus
               onKeyDown={(e) => e.key === "Enter" && password && handleSignIn()}
             />
@@ -728,7 +1289,8 @@ export default function AuthPage() {
             </span>
           </div>
           <button
-            style={{ ...ctaStyle, opacity: password ? 1 : 0.5 }} className="auth-cta"
+            style={{ ...ctaStyle, opacity: password ? 1 : 0.5 }}
+            className="auth-cta"
             disabled={!password || loading}
             onClick={handleSignIn}
           >
@@ -741,7 +1303,7 @@ export default function AuthPage() {
           SCENE 2B — Signup: Name
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signup-name" && (
-        <div style={cardStyle} className="auth-card">
+        <div style={cardStyle} className={classNameForCard(cardAnimClass)}>
           <div style={labelStyle}>{SCENE_LABEL["signup-name"]}</div>
           <div style={questionStyle}>What should we call you?</div>
           <div style={subtextStyle}>This is how you&apos;ll appear in your workspace.</div>
@@ -750,14 +1312,14 @@ export default function AuthPage() {
             placeholder="e.g. Arjun Sharma"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            style={inputStyle} className="auth-input"
-            
-            
+            style={inputStyle}
+            className="auth-input"
             autoFocus
             onKeyDown={(e) => e.key === "Enter" && fullName && goTo("signup-email")}
           />
           <button
-            style={{ ...ctaStyle, opacity: fullName ? 1 : 0.5 }} className="auth-cta"
+            style={{ ...ctaStyle, opacity: fullName ? 1 : 0.5 }}
+            className="auth-cta"
             disabled={!fullName}
             onClick={() => goTo("signup-email")}
           >
@@ -770,7 +1332,7 @@ export default function AuthPage() {
           SCENE 3B — Signup: Email
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signup-email" && (
-        <div style={cardStyle} className="auth-card">
+        <div style={cardStyle} className={classNameForCard(cardAnimClass)}>
           <div style={labelStyle}>{SCENE_LABEL["signup-email"]}</div>
           <div style={questionStyle}>What&apos;s your email address?</div>
           <input
@@ -778,14 +1340,14 @@ export default function AuthPage() {
             placeholder="you@university.edu"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={inputStyle} className="auth-input"
-            
-            
+            style={inputStyle}
+            className="auth-input"
             autoFocus
             onKeyDown={(e) => e.key === "Enter" && email && goTo("signup-field")}
           />
           <button
-            style={{ ...ctaStyle, opacity: email ? 1 : 0.5 }} className="auth-cta"
+            style={{ ...ctaStyle, opacity: email ? 1 : 0.5 }}
+            className="auth-cta"
             disabled={!email}
             onClick={() => goTo("signup-field")}
           >
@@ -798,7 +1360,7 @@ export default function AuthPage() {
           SCENE 4B — Signup: Field of study
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signup-field" && (
-        <div style={cardStyle} className="auth-card">
+        <div style={cardStyle} className={classNameForCard(cardAnimClass)}>
           <div style={labelStyle}>{SCENE_LABEL["signup-field"]}</div>
           <div style={questionStyle}>What are you studying?</div>
           <div style={subtextStyle}>We&apos;ll personalize your workspace.</div>
@@ -806,9 +1368,8 @@ export default function AuthPage() {
             (field) => (
               <button
                 key={field}
-                style={optionBtnStyle}
                 className={`auth-option ${fieldOfStudy === field ? "selected" : ""}`}
-
+                style={optionBtnStyle}
                 onClick={() => {
                   setFieldOfStudy(field);
                   setTimeout(() => goTo("signup-password"), 300);
@@ -825,7 +1386,7 @@ export default function AuthPage() {
           SCENE 5B — Signup: Password
       ════════════════════════════════════════════════════════════════════ */}
       {scene === "signup-password" && (
-        <div style={cardStyle} className="auth-card">
+        <div style={cardStyle} className={classNameForCard(cardAnimClass)}>
           <div style={labelStyle}>{SCENE_LABEL["signup-password"]}</div>
           <div style={questionStyle}>Set a strong password.</div>
           <div style={{ position: "relative", marginBottom: 8 }}>
@@ -834,9 +1395,8 @@ export default function AuthPage() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ ...inputStyle, paddingRight: 38 }} className="auth-input"
-              
-              
+              style={{ ...inputStyle, paddingRight: 38 }}
+              className="auth-input"
               autoFocus
             />
             <button
@@ -863,9 +1423,8 @@ export default function AuthPage() {
               placeholder="Confirm password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              style={{ ...inputStyle, paddingRight: 38 }} className="auth-input"
-              
-              
+              style={{ ...inputStyle, paddingRight: 38 }}
+              className="auth-input"
               onKeyDown={(e) => e.key === "Enter" && password && confirmPassword && handleSignUp()}
             />
             <button
@@ -888,6 +1447,7 @@ export default function AuthPage() {
           </div>
           <button
             style={{ ...ctaStyle, opacity: password && confirmPassword ? 1 : 0.5 }}
+            className="auth-cta"
             disabled={!password || !confirmPassword || loading}
             onClick={handleSignUp}
           >
@@ -906,6 +1466,7 @@ export default function AuthPage() {
             textAlign: "center",
             width: 260,
           }}
+          className={classNameForCard(cardAnimClass)}
         >
           <AnimatedCheckmark />
           <div
@@ -914,15 +1475,42 @@ export default function AuthPage() {
               fontSize: 22,
               color: "#f0e8d8",
               marginBottom: 8,
+              opacity: successTitleVisible ? 1 : 0,
+              transition: "opacity 400ms ease",
             }}
           >
             You&apos;re in.
           </div>
-          <div style={{ fontSize: 12, color: "rgba(201,168,76,0.35)" }}>
+          <div
+            style={{
+              fontSize: 12,
+              color: "rgba(201,168,76,0.35)",
+              opacity: successSubVisible ? 1 : 0,
+              transition: "opacity 400ms ease",
+            }}
+          >
             Taking you to your workspace...
           </div>
         </div>
       )}
+
+      {/* ── Blackout overlay on Success ──────────────────────────────────── */}
+      {successBlackout && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "#000",
+            zIndex: 9999,
+            pointerEvents: "all",
+          }}
+        />
+      )}
     </div>
   );
+}
+
+// ─── Class name helper ──────────────────────────────────────────────────────
+function classNameForCard(animClass: string) {
+  return `auth-card ${animClass}`;
 }
