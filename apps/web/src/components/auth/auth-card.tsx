@@ -20,11 +20,11 @@ export function AuthCard({
         alt=""
         fill
         priority
-        quality={100}
+        unoptimized
         className="object-cover -z-10"
       />
-      {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-black/60" />
+      {/* Dark overlay for readability (removed to prevent dimming) */}
+      <div className="absolute inset-0 bg-transparent" />
 
       {/* Card */}
       <div className="relative z-10 w-full max-w-md rounded-xl border border-golden/20 bg-black/70 p-7 shadow-[0_24px_80px_hsl(0_0%_0%/0.5)] backdrop-blur-xl">
