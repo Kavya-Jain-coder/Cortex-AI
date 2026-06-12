@@ -519,7 +519,7 @@ export default function AuthPage() {
     const t3 = setTimeout(() => setScannerActive(true), 800);
     const t4 = setTimeout(() => setLogoVisible(true), 1400);
     const t5 = setTimeout(() => setTaglineVisible(true), 2200);
-    const t6 = setTimeout(() => goTo("welcome"), 2800);
+    const t6 = setTimeout(() => goTo("welcome"), 6500);
 
     return () => {
       clearTimeout(t1);
