@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Volume2, VolumeX } from "lucide-react";
 import { toast } from "sonner";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -412,6 +412,10 @@ export default function AuthPage() {
   const [isBackTransition, setIsBackTransition] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
+  // ─── Audio state & refs ───────────────────────────────────────────────────
+  const [isMuted, setIsMuted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   const vortexRef = useRef<HTMLDivElement>(null);
   const lastClickRef = useRef<{ x: number; y: number } | null>(null);
 
@@ -422,6 +426,73 @@ export default function AuthPage() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // ─── Background Music Player ──────────────────────────────────────────────
+  useEffect(() => {
+    // Create audio instance
+    const audio = new Audio("/background_music/vasilyatsevich-brain-implant-cyberpunk-sci-fi-trailer-action-intro-330416.mp3");
+    audio.loop = true;
+    audio.volume = 0.4; // set to a comfortable level
+    audioRef.current = audio;
+
+    // Autoplay attempt
+    const startPlay = async () => {
+      try {
+        await audio.play();
+      } catch (err) {
+        console.log("Autoplay blocked, waiting for user interaction to play audio");
+      }
+    };
+    startPlay();
+
+    // Interaction fallback for autoplay restrictions
+    const handleInteraction = async () => {
+      if (audio.paused) {
+        try {
+          await audio.play();
+          // Remove listener once started
+          document.removeEventListener("click", handleInteraction);
+          document.removeEventListener("keydown", handleInteraction);
+        } catch (e) {
+          // still blocked
+        }
+      }
+    };
+
+    document.addEventListener("click", handleInteraction);
+    document.addEventListener("keydown", handleInteraction);
+
+    return () => {
+      audio.pause();
+      document.removeEventListener("click", handleInteraction);
+      document.removeEventListener("keydown", handleInteraction);
+    };
+  }, []);
+
+  // Sync mute state with audio element
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.muted = isMuted;
+    }
+  }, [isMuted]);
+
+  // Smooth audio fade out on auth success
+  useEffect(() => {
+    if (scene === "final" && audioRef.current) {
+      const audio = audioRef.current;
+      let vol = audio.volume;
+      const interval = setInterval(() => {
+        if (vol > 0.04) {
+          vol -= 0.04;
+          audio.volume = vol;
+        } else {
+          audio.pause();
+          clearInterval(interval);
+        }
+      }, 50);
+      return () => clearInterval(interval);
+    }
+  }, [scene]);
 
   // ─── Track Click Coordinates ─────────────────────────────────────────────
   useEffect(() => {
@@ -1129,6 +1200,43 @@ export default function AuthPage() {
 
       {/* ── Progress dots ────────────────────────────────────────────────── */}
       {dotIndex >= 0 && <ProgressDots active={dotIndex} total={8} />}
+
+      {/* ── Audio mute toggle (bottom-right) ─────────────────────────────── */}
+      {scene !== "splash" && scene !== "final" && (
+        <button
+          onClick={() => setIsMuted((m) => !m)}
+          style={{
+            position: "absolute",
+            bottom: 24,
+            right: 24,
+            zIndex: 30,
+            background: "rgba(6, 5, 4, 0.4)",
+            backdropFilter: "blur(4px)",
+            border: "1px solid rgba(201,168,76,0.15)",
+            borderRadius: "50%",
+            color: "#c9a84c",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 32,
+            height: 32,
+            opacity: sceneVisible ? 1 : 0,
+            transition: "opacity 400ms ease, background 200ms ease, transform 200ms ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(6, 5, 4, 0.7)";
+            e.currentTarget.style.transform = "scale(1.05)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(6, 5, 4, 0.4)";
+            e.currentTarget.style.transform = "scale(1)";
+          }}
+          title={isMuted ? "Unmute background music" : "Mute background music"}
+        >
+          {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+        </button>
+      )}
 
       {/* ════════════════════════════════════════════════════════════════════
           SCENE 0 — Splash
