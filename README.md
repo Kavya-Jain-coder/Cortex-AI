@@ -6,7 +6,7 @@
   <p>
     <a href="https://cortex-ai-web.vercel.app" target="_blank">View Live Application</a>
     ·
-    <a href="https://cortex-ai-api.onrender.com/docs" target="_blank">View API Docs</a>
+    <a href="https://studyos-api-qn2v.onrender.com/docs" target="_blank">View API Docs</a>
   </p>
 </div>
 
@@ -17,6 +17,8 @@
 > Use the following pre-configured credentials to explore the platform instantly:
 > - **Email:** `demo@cortex.ai`
 > - **Password:** `Password123!`
+> 
+> *Note: The backend API is hosted on Render's free tier (**[https://studyos-api-qn2v.onrender.com](https://studyos-api-qn2v.onrender.com)**), which automatically spins down after inactivity. If logging in or uploading documents takes longer than expected initially, the server is just waking up (takes about 50–90 seconds).*
 
 ---
 
@@ -53,7 +55,7 @@ Cortex AI uses a modern, decoupled Monorepo architecture separating the highly i
 - **Database**: PostgreSQL (via SQLAlchemy)
 - **Vector DB**: Qdrant (for RAG & semantic search)
 - **AI Models**: Google Gemini 2.5, Llama 70B (via Groq), BGE embeddings
-- **Hosting**: Render (`https://cortex-ai-api.onrender.com`)
+- **Hosting**: Render (`https://studyos-api-qn2v.onrender.com`)
 
 ### Infrastructure
 - **Authentication**: Supabase Auth (JWT validation on Backend)
