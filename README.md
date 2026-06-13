@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="apps/web/public/images/logo-transparent.png" width="220" alt="Cortex AI Logo" />
+  <img src="https://raw.githubusercontent.com/Kavya-Jain-coder/Cortex-AI/main/apps/web/public/images/logo-transparent.png" width="220" alt="Cortex AI Logo" />
   <h1>Cortex AI</h1>
   <p><strong>A Production-Grade, AI-Native Workspace Built Exclusively for Engineering Students</strong></p>
   
