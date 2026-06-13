@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://cortex-ai-web.vercel.app/favicon.ico" width="80" height="80" alt="Cortex AI Logo" />
+  <img src="apps/web/public/images/logo-transparent.png" width="220" alt="Cortex AI Logo" />
   <h1>Cortex | Engineering OS</h1>
   <p><strong>A Production-Grade, AI-Native Workspace Built Exclusively for Engineering Students</strong></p>
   
