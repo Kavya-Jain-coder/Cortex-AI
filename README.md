@@ -10,6 +10,14 @@
   </p>
 </div>
 
+> [!TIP]
+> ### 🚀 Quick Demo Access
+> Try out the live application directly: **[https://cortex-ai-web.vercel.app](https://cortex-ai-web.vercel.app)**
+> 
+> Use the following pre-configured credentials to explore the platform instantly:
+> - **Email:** `demo@cortex.ai`
+> - **Password:** `Password123!`
+
 ---
 
 ## 🧠 What is Cortex?
